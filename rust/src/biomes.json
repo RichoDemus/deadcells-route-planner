@@ -1,0 +1,447 @@
+[
+  {
+    "name": "Prisoners' Quarters",
+    "power_scrolls": 2,
+    "dual_power_scrolls": 0,
+    "cursed_chest_chance": 1,
+    "scroll_fragments": {},
+    "gear_level": 1,
+    "exits": [
+      {
+        "destination": "Dilapidated Arboretum"
+      },
+      {
+        "destination": "Promenade of the Condemned"
+      },
+      {
+        "destination": "Toxic Sewers"
+      }
+    ]
+  },
+  {
+    "name": "Promenade of the Condemned",
+    "power_scrolls": 1,
+    "dual_power_scrolls": 2,
+    "cursed_chest_chance": 10,
+    "scroll_fragments": {
+      "3": 1,
+      "4": 2
+    },
+    "gear_level": 2,
+    "exits": [
+      {
+        "destination": "Prison Depths"
+      },
+      {
+        "destination": "Ossuary"
+      },
+      {
+        "destination": "Ramparts"
+      }
+    ]
+  },
+  {
+    "name": "Toxic Sewers",
+    "power_scrolls": 1,
+    "dual_power_scrolls": 2,
+    "cursed_chest_chance": 10,
+    "scroll_fragments": {
+      "3": 2,
+      "4": 3
+    },
+    "gear_level": 2,
+    "exits": [
+      {
+        "destination": "Ramparts"
+      },
+      {
+        "destination": "Corrupted Prison"
+      },
+      {
+        "destination": "Ancient Sewers"
+      }
+    ]
+  },
+  {
+    "name": "Dilapidated Arboretum",
+    "power_scrolls": 1,
+    "dual_power_scrolls": 2,
+    "cursed_chest_chance": 10,
+    "scroll_fragments": {
+      "3": 1,
+      "4": 2
+    },
+    "gear_level": 2,
+    "exits": [
+      {
+        "destination": "Morass of the Banished"
+      },
+      {
+        "destination": "Prison Depths"
+      },
+      {
+        "destination": "Ramparts"
+      }
+    ]
+  },
+  {
+    "name": "Prison Depths",
+    "power_scrolls": 0,
+    "dual_power_scrolls": 0,
+    "cursed_chest_chance": 100,
+    "scroll_fragments": {},
+    "gear_level": 3,
+    "exits": [
+      {
+        "destination": "Morass of the Banished"
+      },
+      {
+        "destination": "Ossuary"
+      },
+      {
+        "destination": "Ancient Sewers",
+        "boss_cell_requirement": 1
+      }
+    ]
+  },
+  {
+    "name": "Corrupted Prison",
+    "power_scrolls": 0,
+    "dual_power_scrolls": 0,
+    "cursed_chest_chance": 100,
+    "scroll_fragments": {},
+    "gear_level": 3,
+    "exits": [
+      {
+        "destination": "Ramparts",
+        "boss_cell_requirement": 1
+      },
+      {
+        "destination": "Ancient Sewers"
+      }
+    ]
+  },
+  {
+    "name": "Ramparts",
+    "power_scrolls": 3,
+    "dual_power_scrolls": 2,
+    "cursed_chest_chance": 10,
+    "scroll_fragments": {},
+    "gear_level": 3,
+    "exits": [
+      {
+        "destination": "Black Bridge"
+      },
+      {
+        "destination": "Insufferable Crypt",
+        "boss_cell_requirement": 3
+      }
+    ]
+  },
+  {
+    "name": "Ancient Sewers",
+    "power_scrolls": 3,
+    "dual_power_scrolls": 2,
+    "cursed_chest_chance": 10,
+    "scroll_fragments": {
+      "3": 3,
+      "4": 5
+    },
+    "gear_level": 3,
+    "exits": [
+      {
+        "destination": "Insufferable Crypt"
+      }
+    ]
+  },
+  {
+    "name": "Ossuary",
+    "power_scrolls": 2,
+    "dual_power_scrolls": 2,
+    "cursed_chest_chance": 110,
+    "scroll_fragments": {
+      "3": 2,
+      "4": 3
+    },
+    "gear_level": 4,
+    "exits": [
+      {
+        "destination": "Black Bridge"
+      }
+    ]
+  },
+  {
+    "name": "Morass of the Banished",
+    "power_scrolls": 2,
+    "dual_power_scrolls": 2,
+    "cursed_chest_chance": 110,
+    "scroll_fragments": {
+      "3": 2,
+      "4": 4
+    },
+    "gear_level": 3,
+    "exits": [
+      {
+        "destination": "The Nest"
+      }
+    ]
+  },
+  {
+    "name": "Black Bridge",
+    "power_scrolls": 0,
+    "dual_power_scrolls": 0,
+    "cursed_chest_chance": 0,
+    "scroll_fragments": {
+      "3": 2,
+      "4": 3
+    },
+    "gear_level": 3,
+    "exits": [
+      {
+        "destination": "Stilt Village"
+      },
+      {
+        "destination": "Slumbering Sanctuary"
+      }
+    ]
+  },
+  {
+    "name": "Insufferable Crypt",
+    "power_scrolls": 0,
+    "dual_power_scrolls": 0,
+    "cursed_chest_chance": 0,
+    "scroll_fragments": {
+      "3": 3,
+      "4": 5
+    },
+    "gear_level": 3,
+    "exits": [
+      {
+        "destination": "Slumbering Sanctuary"
+      },
+      {
+        "destination": "Graveyard"
+      }
+    ]
+  },
+  {
+    "name": "The Nest",
+    "power_scrolls": 0,
+    "dual_power_scrolls": 0,
+    "cursed_chest_chance": 0,
+    "scroll_fragments": {
+      "3": 3,
+      "4": 4
+    },
+    "gear_level": 3,
+    "exits": [
+      {
+        "destination": "Stilt Village"
+      },
+      {
+        "destination": "Graveyard"
+      }
+    ]
+  },
+  {
+    "name": "Stilt Village",
+    "power_scrolls": 3,
+    "dual_power_scrolls": 1,
+    "cursed_chest_chance": 10,
+    "scroll_fragments": {
+      "3": 1,
+      "4": 2
+    },
+    "gear_level": 4,
+    "exits": [
+      {
+        "destination": "Clock Tower"
+      },
+      {
+        "destination": "Forgotten Sepulcher"
+      }
+    ]
+  },
+  {
+    "name": "Graveyard",
+    "power_scrolls": 2,
+    "dual_power_scrolls": 1,
+    "cursed_chest_chance": 110,
+    "scroll_fragments": {
+      "3": 2,
+      "4": 3
+    },
+    "gear_level": 4,
+    "exits": [
+      {
+        "destination": "Forgotten Sepulcher"
+      },
+      {
+        "destination": "Cavern"
+      }
+    ]
+  },
+  {
+    "name": "Slumbering Sanctuary",
+    "power_scrolls": 2,
+    "dual_power_scrolls": 1,
+    "cursed_chest_chance": 110,
+    "scroll_fragments": {
+      "3": 2,
+      "4": 3
+    },
+    "gear_level": 4,
+    "exits": [
+      {
+        "destination": "Clock Tower"
+      },
+      {
+        "destination": "Forgotten Sepulcher"
+      },
+      {
+        "destination": "Cavern",
+        "boss_cell_requirement": 2
+      }
+    ]
+  },
+  {
+    "name": "Forgotten Sepulcher",
+    "power_scrolls": 3,
+    "dual_power_scrolls": 2,
+    "cursed_chest_chance": 10,
+    "scroll_fragments": {
+      "3": 3,
+      "4": 4
+    },
+    "gear_level": 5,
+    "exits": [
+      {
+        "destination": "Clock Room"
+      },
+      {
+        "destination": "Guardian's Haven",
+        "boss_cell_requirement": 2
+      }
+    ]
+  },
+  {
+    "name": "Clock Tower",
+    "power_scrolls": 4,
+    "dual_power_scrolls": 2,
+    "cursed_chest_chance": 10,
+    "scroll_fragments": {
+      "3": 2,
+      "4": 3
+    },
+    "gear_level": 5,
+    "exits": [
+      {
+        "destination": "Clock Room"
+      }
+    ]
+  },
+  {
+    "name": "Cavern",
+    "power_scrolls": 4,
+    "dual_power_scrolls": 2,
+    "cursed_chest_chance": 10,
+    "scroll_fragments": {
+      "3": 4,
+      "4": 5
+    },
+    "gear_level": 7,
+    "exits": [
+      {
+        "destination": "Guardian's Haven"
+      }
+    ]
+  },
+  {
+    "name": "Clock Room",
+    "power_scrolls": 0,
+    "dual_power_scrolls": 0,
+    "cursed_chest_chance": 0,
+    "scroll_fragments": {
+      "3": 1,
+      "4": 2
+    },
+    "gear_level": 5,
+    "exits": [
+      {
+        "destination": "High Peak Castle"
+      }
+    ]
+  },
+  {
+    "name": "Guardian's Haven",
+    "power_scrolls": 0,
+    "dual_power_scrolls": 0,
+    "cursed_chest_chance": 0,
+    "scroll_fragments": {
+      "3": 3,
+      "4": 4
+    },
+    "gear_level": 7,
+    "exits": [
+      {
+        "destination": "High Peak Castle"
+      },
+      {
+        "destination": "Throne Room",
+        "power_scrolls": 2
+      }
+    ]
+  },
+  {
+    "name": "High Peak Castle",
+    "power_scrolls": 2,
+    "dual_power_scrolls": 2,
+    "cursed_chest_chance": 5,
+    "scroll_fragments": {
+      "3": 1,
+      "4": 2
+    },
+    "gear_level": 6,
+    "exits": [
+      {
+        "destination": "Throne Room"
+      }
+    ]
+  },
+  {
+    "name": "Throne Room",
+    "power_scrolls": 0,
+    "dual_power_scrolls": 0,
+    "cursed_chest_chance": 0,
+    "scroll_fragments": {},
+    "gear_level": 0,
+    "exits": [
+      {
+        "destination": "Astrolab",
+        "boss_cell_requirement": 5
+      }
+    ]
+  },
+  {
+    "name": "Astrolab",
+    "power_scrolls": 0,
+    "dual_power_scrolls": 2,
+    "cursed_chest_chance": 0,
+    "scroll_fragments": {},
+    "gear_level": 7,
+    "exits": [
+      {
+        "destination": "Observatory"
+      }
+    ]
+  },
+  {
+    "name": "Observatory",
+    "power_scrolls": 0,
+    "dual_power_scrolls": 0,
+    "cursed_chest_chance": 0,
+    "scroll_fragments": {},
+    "gear_level": 0,
+    "exits": []
+  }
+]

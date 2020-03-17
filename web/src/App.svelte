@@ -1,22 +1,24 @@
 <script>
 	import {onMount} from "svelte";
-	import {from_wasm} from "./call_wasm";
+	import {get_biomes} from "./call_wasm";
 
-	export let name;
-	let fromWasm = "";
+	let biomes = "";
 	let obj = null;
 
 	onMount( async () => {
-		fromWasm = await from_wasm();
+		biomes = await get_biomes();
 	});
 
 </script>
 
 <style>
-	h1 {
+	li {
 		color: purple;
 	}
 </style>
 
-<h1>Hello {name}!</h1>
-<span>from was: {fromWasm}</span> <br/>
+<ul>
+	{#each biomes as {name}, i}
+		<li>{name}</li>
+	{/each}
+</ul>

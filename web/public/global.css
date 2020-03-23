@@ -59,3 +59,22 @@ button:active {
 button:focus {
 	border-color: #666;
 }
+
+line {
+	stroke-width: 10;
+	stroke-linecap: butt;
+	stroke: black;
+	/*opacity: 0.3;*/
+}
+rect {
+	stroke: black;
+}
+path {
+	stroke: black;
+}
+:global(.hidden-arrow) {
+	opacity: 0.3;
+	/*fill-opacity: 0.2;*/
+	/*stroke-opacity: 0.2;*/
+	/*fill: blue;*/
+}

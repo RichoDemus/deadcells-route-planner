@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::biomes;
+use core::ops;
+use wasm_bindgen::__rt::core::ops::Add;
 
 pub(crate) fn get_biomes() -> Result<Vec<Biome>, String> {
     get_biomes_from_str(*biomes::get_json())
@@ -10,6 +12,7 @@ pub(crate) fn get_biomes() -> Result<Vec<Biome>, String> {
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
 pub struct Biome {
     pub name: String,
+    pub tier: usize,
     pub power_scrolls: u8,
     pub dual_power_scrolls: u8,
     pub cursed_chest_chance: u8,
@@ -26,6 +29,7 @@ impl From<(&str, Vec<&str>)> for Biome {
             .collect();
         Biome {
             name: name.to_string(),
+            tier: 0,
             power_scrolls: 0,
             dual_power_scrolls: 0,
             cursed_chest_chance: 0,
@@ -97,6 +101,22 @@ impl From<String> for Exit {
 
 fn get_biomes_from_str(json: &str) -> Result<Vec<Biome>, String> {
     serde_json::from_str(json).map_err(|err| format!("Failed to parse json: {}", err))
+}
+
+fn take_string_return_string(s:&str) -> Box<&str> {
+    Box::new(s)
+}
+
+fn take_int_return_int(i:Biome) -> Biome {
+    i + 1
+}
+
+impl ops::Add<i32> for Biome {
+    type Output = Biome;
+
+    fn add(self, rhs: i32) -> Self::Output {
+        unimplemented!()
+    }
 }
 
 pub fn find_paths<'b>(
@@ -171,10 +191,9 @@ fn calculate_scrolls(
     let (power_scrolls, dual_scrolls, fragments, cursed_chest_probabilities) =
         sum_collectibles_for_path(path, boss_cells);
 
-    // print!("Probabilties of {:?}", cursed_chest_probabilities);
     let scrolls_from_cursed_chests =
         calculate_scrolls_from_cursed_chests(cursed_chest_probabilities);
-    // println!(" => avg scrolls: {}", scrolls_from_cursed_chests);
+
     //todo also add scrolls from transitions (like from Haven to Throne Room)
     if include_dual_scrolls {
             power_scrolls + dual_scrolls + fragments / 4 + scrolls_from_cursed_chests
@@ -239,8 +258,9 @@ mod tests {
 
     #[test]
     fn parse_json() {
-        let biomes = get_biomes_inner().unwrap();
+        let biomes = get_biomes().unwrap();
         assert_eq!(biomes.len(), 25);
+        println!("{:?}", biomes)
     }
 
     #[test]
@@ -249,6 +269,7 @@ mod tests {
 
         let expected = Biome {
             name: "name".to_string(),
+            tier: 0,
             power_scrolls: 0,
             dual_power_scrolls: 0,
             cursed_chest_chance: 0,
@@ -299,7 +320,7 @@ mod tests {
 
     #[test]
     fn parse_paths_for_actual_data() {
-        let biomes = get_biomes_inner().unwrap();
+        let biomes = get_biomes().unwrap();
         let paths = find_paths(&biomes, "Prisoners' Quarters", "Throne Room");
         // let paths = find_paths(&biomes, "Prisoners' Quarters", "Throne Room");
         assert!(paths.is_ok());
@@ -324,7 +345,7 @@ mod tests {
 
     #[test]
     fn should_find_path_with_most_scrolls() {
-        let biomes = get_biomes_inner().unwrap();
+        let biomes = get_biomes().unwrap();
         let paths = find_paths(&biomes, "Prisoners' Quarters", "Throne Room");
         assert!(paths.is_ok());
         let paths = paths.unwrap();

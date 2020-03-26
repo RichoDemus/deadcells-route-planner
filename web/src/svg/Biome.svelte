@@ -3,7 +3,6 @@
 
     export let name = "no-name";
     export let row = "-";
-    export let y;
     export let x;
     export let rowSize;
 
@@ -13,6 +12,7 @@
     const maxX = 1000 - 200;
 
     let newX = calcXForBiome(parseInt(x), parseInt(rowSize));
+    // console.log("name is ", name, " and row size is ", rowSize, " and newX ", newX);
     // console.log("name is ", name, " row is ", row, " and row size is ", rowSize, " and newX ", newX);
 
 </script>

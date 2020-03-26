@@ -6,9 +6,15 @@
     import SidestepArrow from "./SidestepArrow.svelte";
 
     let biomes = [];
+    let paths = [];
     onMount(async () => {
         biomes = await get_biomes();
+
+        paths = biomes.get("paths");
+        biomes.delete("paths");
+
         // console.log("biomes: ", biomes);
+        // console.log("paths: ", paths);
     });
 
     function clickety(e) {
@@ -47,85 +53,109 @@
 
     {#each [...biomes] as [i,tier], ii}
         {#if tier.length === 1}
-            <Biome x="0" rowSize="{tier.length}" y="{tier[0].row}" name="{tier[0].name}" row="{tier[0].row}"/>
+            <Biome x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
         {:else if tier.length === 2}
-            <Biome x="0" rowSize="{tier.length}" y="{tier[0].row}}" name="{tier[0].name}" row="{tier[0].row}"/>
-            <Biome x="1" rowSize="{tier.length}" y="{tier[1].row}}" name="{tier[1].name}" row="{tier[1].row}"/>
+            <Biome x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
+            <Biome x="1" rowSize="{tier.length}" name="{tier[1].name}" row="{tier[1].row}"/>
         {:else if tier.length === 3}
-            <Biome x="0" rowSize="{tier.length}" y="{tier[0].row}}" name="{tier[0].name}" row="{tier[0].row}"/>
-            <Biome x="1" rowSize="{tier.length}" y="{tier[1].row}" name="{tier[1].name}" row="{tier[1].row}"/>
-            <Biome x="2" rowSize="{tier.length}" y="{tier[2].row}" name="{tier[2].name}" row="{tier[2].row}"/>
+            <Biome x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
+            <Biome x="1" rowSize="{tier.length}" name="{tier[1].name}" row="{tier[1].row}"/>
+            <Biome x="2" rowSize="{tier.length}" name="{tier[2].name}" row="{tier[2].row}"/>
         {:else if tier.length === 4}
-            <Biome x="0" rowSize="{tier.length}" y="{tier[0].row}}" name="{tier[0].name}" row="{tier[0].row}"/>
-            <Biome x="1" rowSize="{tier.length}" y="{tier[1].row}" name="{tier[1].name}" row="{tier[1].row}"/>
-            <Biome x="2" rowSize="{tier.length}" y="{tier[2].row}" name="{tier[2].name}" row="{tier[2].row}"/>
-            <Biome x="3" rowSize="{tier.length}" y="{tier[3].row}" name="{tier[3].name}" row="{tier[3].row}"/>
+            <Biome x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
+            <Biome x="1" rowSize="{tier.length}" name="{tier[1].name}" row="{tier[1].row}"/>
+            <Biome x="2" rowSize="{tier.length}" name="{tier[2].name}" row="{tier[2].row}"/>
+            <Biome x="3" rowSize="{tier.length}" name="{tier[3].name}" row="{tier[3].row}"/>
         {/if}
+    {/each}
+
+    {#each [...paths] as path, i}
+        {#if path.id === "Haven-Throne"}
+            <SidestepArrow id="{path.id}"
+                           startColumn="{path.startColumn}"
+                           startColumns="{path.startColumns}"
+                           endColumn="{path.endColumn}"
+                           endColumns="{path.endColumns}"
+                           row="{path.row}"
+                           length="{path.length}"
+                           endColumnOffset="120"
+            />
+            {:else}
+            <SidestepArrow id="{path.id}"
+                           startColumn="{path.startColumn}"
+                           startColumns="{path.startColumns}"
+                           endColumn="{path.endColumn}"
+                           endColumns="{path.endColumns}"
+                           row="{path.row}"
+                           length="{path.length}"
+            />
+            {/if}}
+
     {/each}
 
 
 
         <!--    Tier one, Prisoners Quarters-->
-    <StraightArrow id="pq-potc" column="1" columns="1" row="0"/>
-    <SidestepArrow id="pq-da" startColumn="1" startColumns="1" endColumn="1" endColumns="3" row="0"/>
-    <SidestepArrow id="pq-ts" startColumn="1" startColumns="1" endColumn="3" endColumns="3" row="0"/>
+<!--    <StraightArrow id="pq-potc" column="1" columns="1" row="0"/>-->
+<!--&lt;!&ndash;    <SidestepArrow id="pq-da" startColumn="1" startColumns="1" endColumn="1" endColumns="3" row="0"/>&ndash;&gt;-->
+<!--    <SidestepArrow id="pq-ts" startColumn="1" startColumns="1" endColumn="3" endColumns="3" row="0"/>-->
 
-    <!--    Tier two, Arboretum, promenade and sewers-->
-    <StraightArrow id="da-motb" column="1" columns="3" row="1" length="2"/>
-    <SidestepArrow id="da-pd" startColumn="1" startColumns="3" endColumn="1" endColumns="2" row="1"/>
-    <SidestepArrow id="da-r" startColumn="1" startColumns="3" endColumn="3" endColumns="4" endColumnOffset="-60" row="1" length="2"/>
-    <SidestepArrow id="potc-dp" startColumn="2" startColumns="3" endColumn="1" endColumns="2" row="1"/>
-    <StraightArrow id="potc-o" column="2" columns="3" columnOffset="-60" row="1" length="2"/>
-    <StraightArrow id="potc-r" column="2" columns="3" columnOffset="+30" row="1" length="2"/>
-    <SidestepArrow id="ts-r" startColumn="3" startColumns="3" endColumn="3" endColumns="4" endColumnOffset="-60" row="1" length="2"/>
-    <SidestepArrow id="ts-r" startColumn="3" startColumns="3" endColumn="2" endColumns="2" row="1"/>
-    <StraightArrow id="ts-as" column="3" columns="3" columnOffset="+60" row="1" length="2"/>
+<!--    &lt;!&ndash;    Tier two, Arboretum, promenade and sewers&ndash;&gt;-->
+<!--    <StraightArrow id="da-motb" column="1" columns="3" row="1" length="2"/>-->
+<!--    <SidestepArrow id="da-pd" startColumn="1" startColumns="3" endColumn="1" endColumns="2" row="1"/>-->
+<!--    <SidestepArrow id="da-r" startColumn="1" startColumns="3" endColumn="3" endColumns="4" endColumnOffset="-60" row="1" length="2"/>-->
+<!--    <SidestepArrow id="potc-dp" startColumn="2" startColumns="3" endColumn="1" endColumns="2" row="1"/>-->
+<!--    <StraightArrow id="potc-o" column="2" columns="3" columnOffset="-60" row="1" length="2"/>-->
+<!--    <StraightArrow id="potc-r" column="2" columns="3" columnOffset="+30" row="1" length="2"/>-->
+<!--    <SidestepArrow id="ts-r" startColumn="3" startColumns="3" endColumn="3" endColumns="4" endColumnOffset="-60" row="1" length="2"/>-->
+<!--    <SidestepArrow id="ts-r" startColumn="3" startColumns="3" endColumn="2" endColumns="2" row="1"/>-->
+<!--    <StraightArrow id="ts-as" column="3" columns="3" columnOffset="+60" row="1" length="2"/>-->
 
-    <!--    Optional tier, prison depths and corrupted prison-->
-    <SidestepArrow id="pd-motb" startColumn="1" startColumns="2" endColumn="1" endColumns="4" row="2"/>
-    <SidestepArrow id="pd-o" startColumn="1" startColumns="2" endColumn="2" endColumns="4" row="2"/>
-    <SidestepArrow id="cp-r" startColumn="2" startColumns="2" endColumn="3" endColumns="4" row="2"/>
-    <SidestepArrow id="cp-as" startColumn="2" startColumns="2" endColumn="4" endColumns="4" row="2"/>
+<!--    &lt;!&ndash;    Optional tier, prison depths and corrupted prison&ndash;&gt;-->
+<!--    <SidestepArrow id="pd-motb" startColumn="1" startColumns="2" endColumn="1" endColumns="4" row="2"/>-->
+<!--    <SidestepArrow id="pd-o" startColumn="1" startColumns="2" endColumn="2" endColumns="4" row="2"/>-->
+<!--    <SidestepArrow id="cp-r" startColumn="2" startColumns="2" endColumn="3" endColumns="4" row="2"/>-->
+<!--    <SidestepArrow id="cp-as" startColumn="2" startColumns="2" endColumn="4" endColumns="4" row="2"/>-->
 
-    <!--    Tier 3, Morass, Ossuary, Ramparts and Ancient Sewers-->
-    <SidestepArrow id="motb-tn" startColumn="1" startColumns="4" endColumn="1" endColumns="3" row="3"/>
-    <SidestepArrow id="o-bb" startColumn="2" startColumns="4" endColumn="2" endColumns="3" row="3"/>
-    <SidestepArrow id="r-bb" startColumn="3" startColumns="4" endColumn="2" endColumns="3" row="3"/>
-    <SidestepArrow id="r-ic" startColumn="3" startColumns="4" endColumn="3" endColumns="3" row="3"/>
-    <SidestepArrow id="as-ic" startColumn="4" startColumns="4" endColumn="3" endColumns="3" row="3"/>
+<!--    &lt;!&ndash;    Tier 3, Morass, Ossuary, Ramparts and Ancient Sewers&ndash;&gt;-->
+<!--    <SidestepArrow id="motb-tn" startColumn="1" startColumns="4" endColumn="1" endColumns="3" row="3"/>-->
+<!--    <SidestepArrow id="o-bb" startColumn="2" startColumns="4" endColumn="2" endColumns="3" row="3"/>-->
+<!--    <SidestepArrow id="r-bb" startColumn="3" startColumns="4" endColumn="2" endColumns="3" row="3"/>-->
+<!--    <SidestepArrow id="r-ic" startColumn="3" startColumns="4" endColumn="3" endColumns="3" row="3"/>-->
+<!--    <SidestepArrow id="as-ic" startColumn="4" startColumns="4" endColumn="3" endColumns="3" row="3"/>-->
 
-<!--    Tier 4, The Next, Black Bridge, Insuffarable Crypt -->
-    <StraightArrow id="tn-sv" column="1" columns="3" row="4"/>
-    <SidestepArrow id="tn-g" startColumn="1" startColumns="3" endColumn="3" endColumns="3" row="4"/>
-    <SidestepArrow id="bb-sv" startColumn="2" startColumns="3" endColumn="1" endColumns="3" row="4"/>
-    <StraightArrow id="bb-ss" column="2" columns="3" row="4"/>
-    <SidestepArrow id="ic-ss" startColumn="3" startColumns="3" endColumn="2" endColumns="3" row="4"/>
-    <StraightArrow id="bb-ss" column="3" columns="3" row="4"/>
+<!--&lt;!&ndash;    Tier 4, The Next, Black Bridge, Insuffarable Crypt &ndash;&gt;-->
+<!--    <StraightArrow id="tn-sv" column="1" columns="3" row="4"/>-->
+<!--    <SidestepArrow id="tn-g" startColumn="1" startColumns="3" endColumn="3" endColumns="3" row="4"/>-->
+<!--    <SidestepArrow id="bb-sv" startColumn="2" startColumns="3" endColumn="1" endColumns="3" row="4"/>-->
+<!--    <StraightArrow id="bb-ss" column="2" columns="3" row="4"/>-->
+<!--    <SidestepArrow id="ic-ss" startColumn="3" startColumns="3" endColumn="2" endColumns="3" row="4"/>-->
+<!--    <StraightArrow id="bb-ss" column="3" columns="3" row="4"/>-->
 
-<!--    Tier 5, Stilt Village, Slumbering Sanctuary and Graveyard-->
-    <StraightArrow id="sv-ct" column="1" columns="3" row="5"/>
-    <SidestepArrow id="sv-fs" startColumn="1" startColumns="3" endColumn="2" endColumns="3" row="5"/>
-    <SidestepArrow id="ss-ct" startColumn="2" startColumns="3" endColumn="1" endColumns="3" row="5"/>
-    <StraightArrow id="ss-fs" column="2" columns="3" row="5"/>
-    <SidestepArrow id="ss-c" startColumn="2" startColumns="3" endColumn="3" endColumns="3" row="5"/>
-    <SidestepArrow id="g-fs" startColumn="3" startColumns="3" endColumn="2" endColumns="3" row="5"/>
-    <StraightArrow id="g-c" column="3" columns="3" row="5"/>
+<!--&lt;!&ndash;    Tier 5, Stilt Village, Slumbering Sanctuary and Graveyard&ndash;&gt;-->
+<!--    <StraightArrow id="sv-ct" column="1" columns="3" row="5"/>-->
+<!--    <SidestepArrow id="sv-fs" startColumn="1" startColumns="3" endColumn="2" endColumns="3" row="5"/>-->
+<!--    <SidestepArrow id="ss-ct" startColumn="2" startColumns="3" endColumn="1" endColumns="3" row="5"/>-->
+<!--    <StraightArrow id="ss-fs" column="2" columns="3" row="5"/>-->
+<!--    <SidestepArrow id="ss-c" startColumn="2" startColumns="3" endColumn="3" endColumns="3" row="5"/>-->
+<!--    <SidestepArrow id="g-fs" startColumn="3" startColumns="3" endColumn="2" endColumns="3" row="5"/>-->
+<!--    <StraightArrow id="g-c" column="3" columns="3" row="5"/>-->
 
-<!--    Tier 6, Clock Tower, Forgotten Sepulcher and Cavern-->
-    <SidestepArrow id="ct-cr" startColumn="1" startColumns="3" endColumn="1" endColumns="2" row="6"/>
-    <SidestepArrow id="fs-cr" startColumn="2" startColumns="3" endColumn="1" endColumns="2" row="6"/>
-    <SidestepArrow id="fs-gh" startColumn="2" startColumns="3" endColumn="2" endColumns="2" row="6"/>
-    <SidestepArrow id="c-gh" startColumn="3" startColumns="3" endColumn="2" endColumns="2" row="6"/>
+<!--&lt;!&ndash;    Tier 6, Clock Tower, Forgotten Sepulcher and Cavern&ndash;&gt;-->
+<!--    <SidestepArrow id="ct-cr" startColumn="1" startColumns="3" endColumn="1" endColumns="2" row="6"/>-->
+<!--    <SidestepArrow id="fs-cr" startColumn="2" startColumns="3" endColumn="1" endColumns="2" row="6"/>-->
+<!--    <SidestepArrow id="fs-gh" startColumn="2" startColumns="3" endColumn="2" endColumns="2" row="6"/>-->
+<!--    <SidestepArrow id="c-gh" startColumn="3" startColumns="3" endColumn="2" endColumns="2" row="6"/>-->
 
-<!--    Tier 7, Clock Room and Guardians Haven-->
-    <SidestepArrow id="cr-hpc" startColumn="1" startColumns="2" endColumn="1" endColumns="1" row="7"/>
-    <SidestepArrow id="gh-hpc" startColumn="2" startColumns="2" endColumn="1" endColumns="1" row="7"/>
-    <SidestepArrow id="gh-tr" startColumn="2" startColumns="2" endColumn="1" endColumns="1" endColumnOffset="110" row="7" length="2"/>
+<!--&lt;!&ndash;    Tier 7, Clock Room and Guardians Haven&ndash;&gt;-->
+<!--    <SidestepArrow id="cr-hpc" startColumn="1" startColumns="2" endColumn="1" endColumns="1" row="7"/>-->
+<!--    <SidestepArrow id="gh-hpc" startColumn="2" startColumns="2" endColumn="1" endColumns="1" row="7"/>-->
+<!--    <SidestepArrow id="gh-tr" startColumn="2" startColumns="2" endColumn="1" endColumns="1" endColumnOffset="110" row="7" length="2"/>-->
 
-<!--    last few single-biome tiers -->
-    <StraightArrow id="hpk-tr" column="1" columns="1" row="8"/>
-    <StraightArrow id="tr-a" column="1" columns="1" row="9"/>
-    <StraightArrow id="a-o" column="1" columns="1" row="10"/>
+<!--&lt;!&ndash;    last few single-biome tiers &ndash;&gt;-->
+<!--    <StraightArrow id="hpk-tr" column="1" columns="1" row="8"/>-->
+<!--    <StraightArrow id="tr-a" column="1" columns="1" row="9"/>-->
+<!--    <StraightArrow id="a-o" column="1" columns="1" row="10"/>-->
 
 
 </svg>

@@ -1,5 +1,5 @@
 use crate::core::Biome;
-use js_sys::{Array, Map};
+use js_sys::Map;
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
@@ -16,29 +16,9 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
 pub fn get_biomes() -> Result<Map, JsValue> {
-    let biomes = core::get_biomes().map_err(|msg| JsValue::from(msg))?;
+    let (biomes, paths) = core::get_biomes_and_paths().map_err(|msg| JsValue::from(msg))?;
 
-    // todo dont hardcore '14'
-    let init: Vec<Vec<Biome>> = (1..14).map(|i| (vec![])).collect();
-
-    let biomes =
-        biomes
-            .into_iter()
-            .map(|biome| (biome.row, biome))
-            .fold(init, |mut acc, (tier, biome)| {
-                let mut biomes = acc.get_mut(tier);
-                let mut biomes = match biomes {
-                    Some(b) => b,
-                    None => {
-                        console::log_1(&JsValue::from(format!("no row at {}", tier)));
-                        panic!()
-                    }
-                };
-                biomes.push(biome);
-                acc
-            });
-
-    println!("biomes: {:?}", biomes);
+    println!("lib.get_biomes: biomes: {:?}", biomes);
 
     let map = Map::new();
     for (i, tier) in biomes.iter().enumerate() {
@@ -50,6 +30,12 @@ pub fn get_biomes() -> Result<Map, JsValue> {
             &JsValue::from_serde(tier).expect("serialize biomes"),
         );
     }
+
+    // ugliest of all hacks, todo figure out how to return both of biomes and paths in a nice way
+    map.set(
+        &JsValue::from("paths"),
+        &JsValue::from_serde(&paths).expect("serialize biomes"),
+    );
 
     Ok(map)
 }

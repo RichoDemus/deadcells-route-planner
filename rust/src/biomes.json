@@ -1,5 +1,6 @@
 [
   {
+    "id": "prisonquart",
     "name": "Prisoners' Quarters",
     "row": 1,
     "column": 1,
@@ -10,17 +11,18 @@
     "gear_level": 1,
     "exits": [
       {
-        "destination": "Dilapidated Arboretum"
+        "destination": "arboretum"
       },
       {
-        "destination": "Promenade of the Condemned"
+        "destination": "promenade"
       },
       {
-        "destination": "Toxic Sewers"
+        "destination": "toxicsewers"
       }
     ]
   },
   {
+    "id": "arboretum",
     "name": "Dilapidated Arboretum",
     "row": 2,
     "column": 1,
@@ -34,17 +36,18 @@
     "gear_level": 2,
     "exits": [
       {
-        "destination": "Morass of the Banished"
+        "destination": "morass"
       },
       {
-        "destination": "Prison Depths"
+        "destination": "prisondepths"
       },
       {
-        "destination": "Ramparts"
+        "destination": "ramparts"
       }
     ]
   },
   {
+    "id": "promenade",
     "name": "Promenade of the Condemned",
     "row": 2,
     "column": 2,
@@ -58,17 +61,18 @@
     "gear_level": 2,
     "exits": [
       {
-        "destination": "Prison Depths"
+        "destination": "prisondepths"
       },
       {
-        "destination": "Ossuary"
+        "destination": "ossuary"
       },
       {
-        "destination": "Ramparts"
+        "destination": "ramparts"
       }
     ]
   },
   {
+    "id": "toxicsewers",
     "name": "Toxic Sewers",
     "row": 2,
     "column": 3,
@@ -82,17 +86,18 @@
     "gear_level": 2,
     "exits": [
       {
-        "destination": "Ramparts"
+        "destination": "ramparts"
       },
       {
-        "destination": "Corrupted Prison"
+        "destination": "corruptedprison"
       },
       {
-        "destination": "Ancient Sewers"
+        "destination": "ancientsewers"
       }
     ]
   },
   {
+    "id": "prisondepths",
     "name": "Prison Depths",
     "row": 3,
     "column": 1,
@@ -103,18 +108,19 @@
     "gear_level": 3,
     "exits": [
       {
-        "destination": "Morass of the Banished"
+        "destination": "morass"
       },
       {
-        "destination": "Ossuary"
+        "destination": "ossuary"
       },
       {
-        "destination": "Ancient Sewers",
+        "destination": "ancientsewers",
         "boss_cell_requirement": 1
       }
     ]
   },
   {
+    "id": "corruptedprison",
     "name": "Corrupted Prison",
     "row": 3,
     "column": 1,
@@ -125,15 +131,16 @@
     "gear_level": 3,
     "exits": [
       {
-        "destination": "Ramparts",
+        "destination": "ramparts",
         "boss_cell_requirement": 1
       },
       {
-        "destination": "Ancient Sewers"
+        "destination": "ancientsewers"
       }
     ]
   },
   {
+    "id": "morass",
     "name": "Morass of the Banished",
     "row": 4,
     "column": 1,
@@ -147,11 +154,12 @@
     "gear_level": 3,
     "exits": [
       {
-        "destination": "The Nest"
+        "destination": "nest"
       }
     ]
   },
   {
+    "id": "ossuary",
     "name": "Ossuary",
     "row": 4,
     "column": 2,
@@ -165,11 +173,12 @@
     "gear_level": 4,
     "exits": [
       {
-        "destination": "Black Bridge"
+        "destination": "bridge"
       }
     ]
   },
   {
+    "id": "ramparts",
     "name": "Ramparts",
     "row": 4,
     "column": 3,
@@ -180,15 +189,16 @@
     "gear_level": 3,
     "exits": [
       {
-        "destination": "Black Bridge"
+        "destination": "bridge"
       },
       {
-        "destination": "Insufferable Crypt",
+        "destination": "crypt",
         "boss_cell_requirement": 3
       }
     ]
   },
   {
+    "id": "ancientsewers",
     "name": "Ancient Sewers",
     "row": 4,
     "column": 4,
@@ -202,11 +212,12 @@
     "gear_level": 3,
     "exits": [
       {
-        "destination": "Insufferable Crypt"
+        "destination": "crypt"
       }
     ]
   },
   {
+    "id": "nest",
     "name": "The Nest",
     "row": 5,
     "column": 1,
@@ -220,14 +231,15 @@
     "gear_level": 3,
     "exits": [
       {
-        "destination": "Stilt Village"
+        "destination": "stilt"
       },
       {
-        "destination": "Graveyard"
+        "destination": "graveyard"
       }
     ]
   },
   {
+    "id": "bridge",
     "name": "Black Bridge",
     "row": 5,
     "column": 2,
@@ -241,14 +253,15 @@
     "gear_level": 3,
     "exits": [
       {
-        "destination": "Stilt Village"
+        "destination": "stilt"
       },
       {
-        "destination": "Slumbering Sanctuary"
+        "destination": "slumbering"
       }
     ]
   },
   {
+    "id": "crypt",
     "name": "Insufferable Crypt",
     "row": 5,
     "column": 3,
@@ -262,14 +275,15 @@
     "gear_level": 3,
     "exits": [
       {
-        "destination": "Slumbering Sanctuary"
+        "destination": "slumbering"
       },
       {
-        "destination": "Graveyard"
+        "destination": "graveyard"
       }
     ]
   },
   {
+    "id": "stilt",
     "name": "Stilt Village",
     "row": 6,
     "column": 1,
@@ -283,14 +297,15 @@
     "gear_level": 4,
     "exits": [
       {
-        "destination": "Clock Tower"
+        "destination": "clocktower"
       },
       {
-        "destination": "Forgotten Sepulcher"
+        "destination": "sepulcher"
       }
     ]
   },
   {
+    "id": "slumbering",
     "name": "Slumbering Sanctuary",
     "row": 6,
     "column": 2,
@@ -304,18 +319,19 @@
     "gear_level": 4,
     "exits": [
       {
-        "destination": "Clock Tower"
+        "destination": "clocktower"
       },
       {
-        "destination": "Forgotten Sepulcher"
+        "destination": "sepulcher"
       },
       {
-        "destination": "Cavern",
+        "destination": "cavern",
         "boss_cell_requirement": 2
       }
     ]
   },
   {
+    "id": "graveyard",
     "name": "Graveyard",
     "row": 6,
     "column": 3,
@@ -329,14 +345,15 @@
     "gear_level": 4,
     "exits": [
       {
-        "destination": "Forgotten Sepulcher"
+        "destination": "sepulcher"
       },
       {
-        "destination": "Cavern"
+        "destination": "cavern"
       }
     ]
   },
   {
+    "id": "clocktower",
     "name": "Clock Tower",
     "row": 7,
     "column": 1,
@@ -350,11 +367,12 @@
     "gear_level": 5,
     "exits": [
       {
-        "destination": "Clock Room"
+        "destination": "clockroom"
       }
     ]
   },
   {
+    "id": "sepulcher",
     "name": "Forgotten Sepulcher",
     "row": 7,
     "column": 2,
@@ -368,15 +386,16 @@
     "gear_level": 5,
     "exits": [
       {
-        "destination": "Clock Room"
+        "destination": "clockroom"
       },
       {
-        "destination": "Guardian's Haven",
+        "destination": "haven",
         "boss_cell_requirement": 2
       }
     ]
   },
   {
+    "id": "cavern",
     "name": "Cavern",
     "row": 7,
     "column": 3,
@@ -390,11 +409,12 @@
     "gear_level": 7,
     "exits": [
       {
-        "destination": "Guardian's Haven"
+        "destination": "haven"
       }
     ]
   },
   {
+    "id": "clockroom",
     "name": "Clock Room",
     "row": 8,
     "column": 1,
@@ -408,11 +428,12 @@
     "gear_level": 5,
     "exits": [
       {
-        "destination": "High Peak Castle"
+        "destination": "castle"
       }
     ]
   },
   {
+    "id": "haven",
     "name": "Guardian's Haven",
     "row": 8,
     "column": 2,
@@ -426,15 +447,16 @@
     "gear_level": 7,
     "exits": [
       {
-        "destination": "High Peak Castle"
+        "destination": "castle"
       },
       {
-        "destination": "Throne Room",
+        "destination": "throne",
         "power_scrolls": 2
       }
     ]
   },
   {
+    "id": "castle",
     "name": "High Peak Castle",
     "row": 9,
     "column": 1,
@@ -448,11 +470,12 @@
     "gear_level": 6,
     "exits": [
       {
-        "destination": "Throne Room"
+        "destination": "throne"
       }
     ]
   },
   {
+    "id": "throne",
     "name": "Throne Room",
     "row": 10,
     "column": 1,
@@ -463,12 +486,13 @@
     "gear_level": 0,
     "exits": [
       {
-        "destination": "Astrolab",
+        "destination": "lab",
         "boss_cell_requirement": 5
       }
     ]
   },
   {
+    "id": "lab",
     "name": "Astrolab",
     "row": 11,
     "column": 1,
@@ -479,11 +503,12 @@
     "gear_level": 7,
     "exits": [
       {
-        "destination": "Observatory"
+        "destination": "observatory"
       }
     ]
   },
   {
+    "id": "observatory",
     "name": "Observatory",
     "row": 12,
     "column": 1,

@@ -1,16 +1,26 @@
 use serde::{Deserialize, Serialize};
 
 use crate::biomes;
-use core::ops;
-use wasm_bindgen::__rt::core::ops::Add;
+use std::fmt;
+use std::fmt::Debug;
 
-pub(crate) fn get_biomes() -> Result<Vec<Biome>, String> {
+pub fn get_biomes() -> Result<Vec<Biome>, String> {
     get_biomes_from_str(*biomes::get_json())
+}
+
+pub(crate) fn get_biomes_and_paths() -> Result<(Vec<Vec<Biome>>, Vec<Path>), String> {
+    let biomes = get_biomes_from_str(*biomes::get_json())?;
+
+    let paths = calculate_paths(&biomes);
+    let biomes = order_biomes_by_tier(biomes)?;
+
+    Ok((biomes, paths))
 }
 
 #[serde(deny_unknown_fields)]
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
 pub struct Biome {
+    pub id: Id,
     pub name: String,
     pub row: usize,
     pub column: usize,
@@ -22,23 +32,63 @@ pub struct Biome {
     pub exits: Vec<Exit>,
 }
 
-impl From<(&str, Vec<&str>)> for Biome {
-    fn from((name, exits): (&str, Vec<&str>)) -> Self {
-        let exits = exits
-            .into_iter()
-            .map(|exit| Exit::from(exit.to_string()))
-            .collect();
-        Biome {
-            name: name.to_string(),
-            row: 0,
-            column: 0,
-            power_scrolls: 0,
-            dual_power_scrolls: 0,
-            cursed_chest_chance: 0,
-            scroll_fragments: ScrollFragments::default(),
-            gear_level: 0,
-            exits,
-        }
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
+pub enum Id {
+    #[serde(rename = "prisonquart")]
+    Prisonquart,
+    #[serde(rename = "arboretum")]
+    Arboretum,
+    #[serde(rename = "promenade")]
+    Promenade,
+    #[serde(rename = "toxicsewers")]
+    Toxicsewers,
+    #[serde(rename = "prisondepths")]
+    Prisondepths,
+    #[serde(rename = "corruptedprison")]
+    Corruptedprison,
+    #[serde(rename = "morass")]
+    Morass,
+    #[serde(rename = "ossuary")]
+    Ossuary,
+    #[serde(rename = "ramparts")]
+    Ramparts,
+    #[serde(rename = "ancientsewers")]
+    Ancientsewers,
+    #[serde(rename = "nest")]
+    Nest,
+    #[serde(rename = "bridge")]
+    Bridge,
+    #[serde(rename = "crypt")]
+    Crypt,
+    #[serde(rename = "stilt")]
+    Stilt,
+    #[serde(rename = "slumbering")]
+    Slumbering,
+    #[serde(rename = "graveyard")]
+    Graveyard,
+    #[serde(rename = "clocktower")]
+    Clocktower,
+    #[serde(rename = "sepulcher")]
+    Sepulcher,
+    #[serde(rename = "cavern")]
+    Cavern,
+    #[serde(rename = "clockroom")]
+    Clockroom,
+    #[serde(rename = "haven")]
+    Haven,
+    #[serde(rename = "castle")]
+    Castle,
+    #[serde(rename = "throne")]
+    Throne,
+    #[serde(rename = "lab")]
+    Lab,
+    #[serde(rename = "observatory")]
+    Observatory,
+}
+
+impl fmt::Display for Id {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Debug::fmt(self, f)
     }
 }
 
@@ -86,13 +136,13 @@ pub enum BossCells {
 #[serde(deny_unknown_fields)]
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
 pub struct Exit {
-    pub destination: String,
+    pub destination: Id,
     pub boss_cell_requirement: Option<u8>,
     pub power_scrolls: Option<u8>,
 }
 
-impl From<String> for Exit {
-    fn from(destination: String) -> Self {
+impl From<Id> for Exit {
+    fn from(destination: Id) -> Self {
         Exit {
             destination,
             boss_cell_requirement: None,
@@ -101,35 +151,58 @@ impl From<String> for Exit {
     }
 }
 
+#[derive(Serialize, Debug, Eq, PartialEq)]
+pub struct Path {
+    id: String,
+    #[serde(rename = "startColumn")]
+    start_column: u8,
+    #[serde(rename = "startColumns")]
+    start_columns: u8,
+    #[serde(rename = "endColumn")]
+    end_column: u8,
+    #[serde(rename = "endColumns")]
+    end_columns: u8,
+    row: u8,
+    length: u8,
+}
+
 fn get_biomes_from_str(json: &str) -> Result<Vec<Biome>, String> {
     serde_json::from_str(json).map_err(|err| format!("Failed to parse json: {}", err))
 }
 
-fn take_string_return_string(s: &str) -> Box<&str> {
-    Box::new(s)
-}
+// todo this shouldn't return result, it can only error due to code error
+fn order_biomes_by_tier(biomes: Vec<Biome>) -> Result<Vec<Vec<Biome>>, String> {
+    // todo dont hardcore '14'
+    let init: Vec<Vec<Biome>> = (0..14).map(|_| (vec![])).collect();
 
-fn take_int_return_int(i: Biome) -> Biome {
-    i + 1
-}
+    let biomes: Vec<Vec<Biome>> = biomes
+        .into_iter()
+        .map(|biome| (biome.row, biome))
+        .try_fold(init, |mut acc, (tier, biome)| {
+            let biomes = acc.get_mut(tier - 1);
+            match biomes {
+                Some(b) => {
+                    b.push(biome);
+                    Ok(acc)
+                }
+                None => Err(format!("no row at {}", tier)),
+            }
+        })?;
 
-impl ops::Add<i32> for Biome {
-    type Output = Biome;
+    let biomes: Vec<Vec<Biome>> = biomes.into_iter().filter(|tier| !tier.is_empty()).collect();
 
-    fn add(self, rhs: i32) -> Self::Output {
-        unimplemented!()
-    }
+    Ok(biomes)
 }
 
 pub fn find_paths<'b>(
     biomes: &'b Vec<Biome>,
-    start: &str,
-    end: &str,
+    start: &Id,
+    end: &Id,
 ) -> Result<Vec<Vec<&'b Biome>>, String> {
     let start = biomes
         .iter()
-        .find(|biome| biome.name == start)
-        .ok_or(format!("Couldn't find start node {}", start))?;
+        .find(|biome| &biome.id == start)
+        .ok_or(format!("Couldn't find start node {:?}", start))?;
 
     let paths = find_path_rec(biomes, vec![&start], end);
 
@@ -139,23 +212,23 @@ pub fn find_paths<'b>(
 fn find_path_rec<'b>(
     all_biomes: &'b Vec<Biome>,
     current_path: Vec<&'b Biome>,
-    end: &str,
+    end: &Id,
 ) -> Vec<Vec<&'b Biome>> {
     let last_biome_in_path = current_path
         .last()
         .expect("There should be an element here");
-    if last_biome_in_path.name == end {
+    if &last_biome_in_path.id == end {
         return vec![current_path];
     }
 
-    let exit_names: Vec<&String> = last_biome_in_path
+    let exit_ids: Vec<&Id> = last_biome_in_path
         .exits
         .iter()
         .map(|exit| &exit.destination)
         .collect();
     let next_biomes: Vec<&Biome> = all_biomes
         .iter()
-        .filter(|biome| exit_names.contains(&&biome.name))
+        .filter(|biome| exit_ids.contains(&&biome.id))
         .collect();
 
     let mut paths = vec![];
@@ -249,6 +322,52 @@ fn calculate_collectibles_from_cursed_chests(
     )
 }
 
+// todo investigate and maybe do this in a  const fn :o
+fn calculate_paths(biomes: &Vec<Biome>) -> Vec<Path> {
+    let mut result = vec![];
+
+    fn calc_columns(biomes: &Vec<Biome>, row: usize) -> usize {
+        biomes.into_iter().filter(|biome| biome.row == row).count()
+    }
+
+    fn calc_length(start: &Biome, end: &Biome) -> u8 {
+        (end.row - start.row) as u8
+    }
+
+    fn get_biome<'b>(biomes: &'b Vec<Biome>, id: &Id) -> &'b Biome {
+        biomes
+            .into_iter()
+            .find(|biome| &biome.id == id)
+            .expect(format!("No biome with id {:?}", id).as_str())
+    }
+
+    for biome in biomes {
+        let start_id = biome.id.clone();
+        let row = biome.row as u8;
+        let start_column = biome.column as u8;
+        let start_columns = calc_columns(biomes, biome.row) as u8;
+
+        for exit in &biome.exits {
+            let end_biome = get_biome(biomes, &exit.destination);
+            let end_column = end_biome.column as u8;
+            let end_columns = calc_columns(biomes, end_biome.row) as u8;
+            let length = calc_length(biome, end_biome);
+
+            result.push(Path {
+                id: format!("{}-{}", start_id.to_string(), exit.destination.to_string()),
+                start_column,
+                start_columns,
+                end_column,
+                end_columns,
+                row,
+                length,
+            });
+        }
+    }
+
+    result
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -269,15 +388,15 @@ mod tests {
     fn parse_json() {
         let biomes = get_biomes().unwrap();
         assert_eq!(biomes.len(), 25);
-        println!("{:?}", biomes)
     }
 
     #[test]
     fn biome_from_tuple() {
-        let biome: Biome = ("name", vec!["destination1", "destination2"]).into();
+        let biome: Biome = (Id::Prisonquart, vec![Id::Castle, Id::Crypt]).into();
 
         let expected = Biome {
-            name: "name".to_string(),
+            id: Id::Prisonquart,
+            name: Id::Prisonquart.to_string(),
             row: 0,
             column: 0,
             power_scrolls: 0,
@@ -287,12 +406,12 @@ mod tests {
             gear_level: 0,
             exits: vec![
                 Exit {
-                    destination: "destination1".to_string(),
+                    destination: Id::Castle,
                     boss_cell_requirement: None,
                     power_scrolls: None,
                 },
                 Exit {
-                    destination: "destination2".to_string(),
+                    destination: Id::Crypt,
                     boss_cell_requirement: None,
                     power_scrolls: None,
                 },
@@ -305,25 +424,26 @@ mod tests {
     #[test]
     fn find_path_between_nodes() {
         let input: Vec<Biome> = vec![
-            ("start", vec!["dead_end", "middle"]).into(),
-            ("dead_end", vec![]).into(),
-            ("middle", vec!["end", "extra_biome"]).into(),
-            ("extra_biome", vec!["end"]).into(),
-            ("end", vec![]).into(),
+            (Id::Prisonquart, vec![Id::Corruptedprison, Id::Bridge]).into(),
+            (Id::Corruptedprison, vec![]).into(),
+            (Id::Bridge, vec![Id::Throne, Id::Slumbering]).into(),
+            (Id::Slumbering, vec![Id::Throne]).into(),
+            (Id::Throne, vec![]).into(),
         ];
 
-        let paths = find_paths(&input, "start", "end");
+        let paths = find_paths(&input, &Id::Prisonquart, &Id::Throne);
         assert!(paths.is_ok());
         let paths = paths.unwrap();
 
-        let paths_string: Vec<Vec<&String>> =
-            paths.into_iter().map(|path| path_to_names(&path)).collect();
+        let paths_string: Vec<Vec<&Id>> =
+            paths.into_iter().map(|path| path_to_ids(&path)).collect();
 
+        // todo maybe clone to remove &
         assert_eq!(
             paths_string,
             vec![
-                vec!["start", "middle", "extra_biome", "end"],
-                vec!["start", "middle", "end"]
+                vec![&Id::Prisonquart, &Id::Bridge, &Id::Slumbering, &Id::Throne],
+                vec![&Id::Prisonquart, &Id::Bridge, &Id::Throne]
             ]
         );
     }
@@ -331,7 +451,7 @@ mod tests {
     #[test]
     fn parse_paths_for_actual_data() {
         let biomes = get_biomes().unwrap();
-        let paths = find_paths(&biomes, "Prisoners' Quarters", "Throne Room");
+        let paths = find_paths(&biomes, &Id::Prisonquart, &Id::Throne);
         // let paths = find_paths(&biomes, "Prisoners' Quarters", "Throne Room");
         assert!(paths.is_ok());
         let paths = paths.unwrap();
@@ -358,19 +478,19 @@ mod tests {
         );
         result.reverse();
 
-        for (collectibles, path) in result {
-            println!("path: {:?} - {:?}", collectibles, path);
-        }
+        // for (collectibles, path) in result {
+        //     println!("path: {:?} - {:?}", collectibles, path);
+        // }
     }
 
     #[test]
     fn should_find_path_with_most_scrolls() {
         let biomes = get_biomes().unwrap();
-        let paths = find_paths(&biomes, "Prisoners' Quarters", "Throne Room");
+        let paths = find_paths(&biomes, &Id::Prisonquart, &Id::Throne);
         assert!(paths.is_ok());
         let paths = paths.unwrap();
 
-        let (scrolls, path) = get_path_with_most_scrolls(&paths, BossCells::Five, false);
+        let (scrolls, _path) = get_path_with_most_scrolls(&paths, BossCells::Five, false);
 
         assert_eq!(scrolls, 22, "Wrong amount of scrolls in best route");
 
@@ -408,7 +528,150 @@ mod tests {
         assert_eq!(result, (11, 0, 0, 90))
     }
 
+    #[test]
+    fn test_builds_paths() {
+        let input: Vec<Biome> = vec![
+            (Id::Prisonquart, 1, 1, vec![Id::Arboretum]).into(),
+            (Id::Arboretum, 2, 1, vec![Id::Prisondepths, Id::Morass]).into(),
+            (Id::Promenade, 2, 2, vec![]).into(),
+            (Id::Prisondepths, 3, 1, vec![Id::Morass]).into(),
+            (Id::Morass, 4, 1, vec![]).into(),
+        ];
+
+        let result = calculate_paths(&input);
+
+        assert_eq!(
+            result,
+            vec![
+                Path {
+                    id: format!("{}-{}", Id::Prisonquart.to_string(), Id::Arboretum),
+                    start_column: 1,
+                    start_columns: 1,
+                    end_column: 1,
+                    end_columns: 2,
+                    row: 1,
+                    length: 1,
+                },
+                Path {
+                    id: format!(
+                        "{}-{}",
+                        Id::Arboretum.to_string(),
+                        Id::Prisondepths.to_string()
+                    ),
+                    start_column: 1,
+                    start_columns: 2,
+                    end_column: 1,
+                    end_columns: 1,
+                    row: 2,
+                    length: 1,
+                },
+                Path {
+                    id: format!("{}-{}", Id::Arboretum.to_string(), Id::Morass.to_string()),
+                    start_column: 1,
+                    start_columns: 2,
+                    end_column: 1,
+                    end_columns: 1,
+                    row: 2,
+                    length: 2,
+                },
+                Path {
+                    id: format!(
+                        "{}-{}",
+                        Id::Prisondepths.to_string(),
+                        Id::Morass.to_string()
+                    ),
+                    start_column: 1,
+                    start_columns: 1,
+                    end_column: 1,
+                    end_columns: 1,
+                    row: 3,
+                    length: 1,
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn test_order_biomes_by_row() {
+        let biomes = vec![
+            (Id::Prisonquart, 1, 1).into(),
+            (Id::Promenade, 2, 1).into(),
+            (Id::Toxicsewers, 2, 2).into(),
+        ];
+
+        let result = order_biomes_by_tier(biomes);
+        let result = result.unwrap();
+
+        assert_eq!(
+            result,
+            vec![
+                vec![(Id::Prisonquart, 1, 1).into()],
+                vec![(Id::Promenade, 2, 1).into(), (Id::Toxicsewers, 2, 2).into()]
+            ]
+        );
+    }
+
     fn path_to_names<'b>(path: &Vec<&'b Biome>) -> Vec<&'b String> {
         path.iter().map(|biome| &biome.name).collect()
+    }
+
+    fn path_to_ids<'b>(path: &Vec<&'b Biome>) -> Vec<&'b Id> {
+        path.iter().map(|biome| &biome.id).collect()
+    }
+
+    impl From<(Id, Vec<Id>)> for Biome {
+        fn from((id, exits): (Id, Vec<Id>)) -> Self {
+            let name = id.to_string();
+            let exits = exits.into_iter().map(|exit| Exit::from(exit)).collect();
+            Biome {
+                id,
+                name,
+                row: 0,
+                column: 0,
+                power_scrolls: 0,
+                dual_power_scrolls: 0,
+                cursed_chest_chance: 0,
+                scroll_fragments: ScrollFragments::default(),
+                gear_level: 0,
+                exits,
+            }
+        }
+    }
+
+    impl From<(Id, usize, usize)> for Biome {
+        fn from((id, row, column): (Id, usize, usize)) -> Self {
+            let name = id.to_string();
+            Biome {
+                id,
+                name,
+                row,
+                column,
+                power_scrolls: 0,
+                dual_power_scrolls: 0,
+                cursed_chest_chance: 0,
+                scroll_fragments: ScrollFragments::default(),
+                gear_level: 0,
+                exits: vec![],
+            }
+        }
+    }
+
+    impl From<(Id, usize, usize, Vec<Id>)> for Biome {
+        fn from((id, row, column, exits): (Id, usize, usize, Vec<Id>)) -> Self {
+            let name = id.to_string();
+            let exits = exits.into_iter().map(|exit| Exit::from(exit)).collect();
+            Biome {
+                id,
+                name,
+                row,
+                column,
+                power_scrolls: 0,
+                dual_power_scrolls: 0,
+                cursed_chest_chance: 0,
+                scroll_fragments: ScrollFragments::default(),
+                gear_level: 0,
+                exits,
+            }
+        }
     }
 }

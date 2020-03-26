@@ -17,6 +17,7 @@
 </style>
 
 <div>
+    <h1>Dead Cells Route Planner</h1>
     <Map/>
 
 

@@ -1,7 +1,8 @@
 [
   {
     "name": "Prisoners' Quarters",
-    "tier": 0,
+    "row": 1,
+    "column": 1,
     "power_scrolls": 2,
     "dual_power_scrolls": 0,
     "cursed_chest_chance": 1,
@@ -21,7 +22,8 @@
   },
   {
     "name": "Dilapidated Arboretum",
-    "tier": 1,
+    "row": 2,
+    "column": 1,
     "power_scrolls": 1,
     "dual_power_scrolls": 2,
     "cursed_chest_chance": 10,
@@ -44,7 +46,8 @@
   },
   {
     "name": "Promenade of the Condemned",
-    "tier": 1,
+    "row": 2,
+    "column": 2,
     "power_scrolls": 1,
     "dual_power_scrolls": 2,
     "cursed_chest_chance": 10,
@@ -67,7 +70,8 @@
   },
   {
     "name": "Toxic Sewers",
-    "tier": 1,
+    "row": 2,
+    "column": 3,
     "power_scrolls": 1,
     "dual_power_scrolls": 2,
     "cursed_chest_chance": 10,
@@ -90,7 +94,8 @@
   },
   {
     "name": "Prison Depths",
-    "tier": 2,
+    "row": 3,
+    "column": 1,
     "power_scrolls": 0,
     "dual_power_scrolls": 0,
     "cursed_chest_chance": 100,
@@ -111,7 +116,8 @@
   },
   {
     "name": "Corrupted Prison",
-    "tier": 2,
+    "row": 3,
+    "column": 1,
     "power_scrolls": 0,
     "dual_power_scrolls": 0,
     "cursed_chest_chance": 100,
@@ -129,7 +135,8 @@
   },
   {
     "name": "Morass of the Banished",
-    "tier": 3,
+    "row": 4,
+    "column": 1,
     "power_scrolls": 2,
     "dual_power_scrolls": 2,
     "cursed_chest_chance": 110,
@@ -146,7 +153,8 @@
   },
   {
     "name": "Ossuary",
-    "tier": 3,
+    "row": 4,
+    "column": 2,
     "power_scrolls": 2,
     "dual_power_scrolls": 2,
     "cursed_chest_chance": 110,
@@ -163,7 +171,8 @@
   },
   {
     "name": "Ramparts",
-    "tier": 3,
+    "row": 4,
+    "column": 3,
     "power_scrolls": 3,
     "dual_power_scrolls": 2,
     "cursed_chest_chance": 10,
@@ -181,7 +190,8 @@
   },
   {
     "name": "Ancient Sewers",
-    "tier": 3,
+    "row": 4,
+    "column": 4,
     "power_scrolls": 3,
     "dual_power_scrolls": 2,
     "cursed_chest_chance": 10,
@@ -198,7 +208,8 @@
   },
   {
     "name": "The Nest",
-    "tier": 4,
+    "row": 5,
+    "column": 1,
     "power_scrolls": 0,
     "dual_power_scrolls": 0,
     "cursed_chest_chance": 0,
@@ -218,7 +229,8 @@
   },
   {
     "name": "Black Bridge",
-    "tier": 4,
+    "row": 5,
+    "column": 2,
     "power_scrolls": 0,
     "dual_power_scrolls": 0,
     "cursed_chest_chance": 0,
@@ -238,7 +250,8 @@
   },
   {
     "name": "Insufferable Crypt",
-    "tier": 4,
+    "row": 5,
+    "column": 3,
     "power_scrolls": 0,
     "dual_power_scrolls": 0,
     "cursed_chest_chance": 0,
@@ -258,7 +271,8 @@
   },
   {
     "name": "Stilt Village",
-    "tier": 5,
+    "row": 6,
+    "column": 1,
     "power_scrolls": 3,
     "dual_power_scrolls": 1,
     "cursed_chest_chance": 10,
@@ -278,7 +292,8 @@
   },
   {
     "name": "Slumbering Sanctuary",
-    "tier": 5,
+    "row": 6,
+    "column": 2,
     "power_scrolls": 2,
     "dual_power_scrolls": 1,
     "cursed_chest_chance": 110,
@@ -302,7 +317,8 @@
   },
   {
     "name": "Graveyard",
-    "tier": 5,
+    "row": 6,
+    "column": 3,
     "power_scrolls": 2,
     "dual_power_scrolls": 1,
     "cursed_chest_chance": 110,
@@ -322,7 +338,8 @@
   },
   {
     "name": "Clock Tower",
-    "tier": 6,
+    "row": 7,
+    "column": 1,
     "power_scrolls": 4,
     "dual_power_scrolls": 2,
     "cursed_chest_chance": 10,
@@ -339,7 +356,8 @@
   },
   {
     "name": "Forgotten Sepulcher",
-    "tier": 6,
+    "row": 7,
+    "column": 2,
     "power_scrolls": 3,
     "dual_power_scrolls": 2,
     "cursed_chest_chance": 10,
@@ -360,7 +378,8 @@
   },
   {
     "name": "Cavern",
-    "tier": 6,
+    "row": 7,
+    "column": 3,
     "power_scrolls": 4,
     "dual_power_scrolls": 2,
     "cursed_chest_chance": 10,
@@ -377,7 +396,8 @@
   },
   {
     "name": "Clock Room",
-    "tier": 7,
+    "row": 8,
+    "column": 1,
     "power_scrolls": 0,
     "dual_power_scrolls": 0,
     "cursed_chest_chance": 0,
@@ -394,7 +414,8 @@
   },
   {
     "name": "Guardian's Haven",
-    "tier": 7,
+    "row": 8,
+    "column": 2,
     "power_scrolls": 0,
     "dual_power_scrolls": 0,
     "cursed_chest_chance": 0,
@@ -415,7 +436,8 @@
   },
   {
     "name": "High Peak Castle",
-    "tier": 8,
+    "row": 9,
+    "column": 1,
     "power_scrolls": 2,
     "dual_power_scrolls": 2,
     "cursed_chest_chance": 5,
@@ -432,7 +454,8 @@
   },
   {
     "name": "Throne Room",
-    "tier": 9,
+    "row": 10,
+    "column": 1,
     "power_scrolls": 0,
     "dual_power_scrolls": 0,
     "cursed_chest_chance": 0,
@@ -447,7 +470,8 @@
   },
   {
     "name": "Astrolab",
-    "tier": 10,
+    "row": 11,
+    "column": 1,
     "power_scrolls": 0,
     "dual_power_scrolls": 2,
     "cursed_chest_chance": 0,
@@ -461,7 +485,8 @@
   },
   {
     "name": "Observatory",
-    "tier": 11,
+    "row": 12,
+    "column": 1,
     "power_scrolls": 0,
     "dual_power_scrolls": 0,
     "cursed_chest_chance": 0,

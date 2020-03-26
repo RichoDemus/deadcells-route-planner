@@ -1,14 +1,14 @@
 <script>
-    import {onMount} from "svelte";
-    import {get_biomes} from "./call_wasm";
+    // import {onMount} from "svelte";
+    // import {get_biomes} from "./call_wasm";
     import Map from "./svg/Map.svelte";
-
-    let biomes = "";
-    let obj = null;
-
-    onMount(async () => {
-        biomes = await get_biomes();
-    });
+    //
+    // let biomes = "";
+    // let obj = null;
+    //
+    // onMount(async () => {
+    //     biomes = await get_biomes();
+    // });
 
 </script>
 

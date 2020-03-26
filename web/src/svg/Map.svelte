@@ -8,7 +8,7 @@
     let biomes = [];
     onMount(async () => {
         biomes = await get_biomes();
-        console.log("biomes: ", biomes);
+        // console.log("biomes: ", biomes);
     });
 
     function clickety(e) {
@@ -47,19 +47,19 @@
 
     {#each [...biomes] as [i,tier], ii}
         {#if tier.length === 1}
-            <Biome x="0" rowSize="{tier.length}" y="{i}" name="{tier[0].name}"/>
+            <Biome x="0" rowSize="{tier.length}" y="{tier[0].row}" name="{tier[0].name}" row="{tier[0].row}"/>
         {:else if tier.length === 2}
-            <Biome x="0" rowSize="{tier.length}" y="{i}" name="{tier[0].name}"/>
-            <Biome x="1" rowSize="{tier.length}" y="{i}" name="{tier[1].name}"/>
+            <Biome x="0" rowSize="{tier.length}" y="{tier[0].row}}" name="{tier[0].name}" row="{tier[0].row}"/>
+            <Biome x="1" rowSize="{tier.length}" y="{tier[1].row}}" name="{tier[1].name}" row="{tier[1].row}"/>
         {:else if tier.length === 3}
-            <Biome x="0" rowSize="{tier.length}" y="{i}" name="{tier[0].name}"/>
-            <Biome x="1" rowSize="{tier.length}" y="{i}" name="{tier[1].name}"/>
-            <Biome x="2" rowSize="{tier.length}" y="{i}" name="{tier[2].name}"/>
+            <Biome x="0" rowSize="{tier.length}" y="{tier[0].row}}" name="{tier[0].name}" row="{tier[0].row}"/>
+            <Biome x="1" rowSize="{tier.length}" y="{tier[1].row}" name="{tier[1].name}" row="{tier[1].row}"/>
+            <Biome x="2" rowSize="{tier.length}" y="{tier[2].row}" name="{tier[2].name}" row="{tier[2].row}"/>
         {:else if tier.length === 4}
-            <Biome x="0" rowSize="{tier.length}" y="{i}" name="{tier[0].name}"/>
-            <Biome x="1" rowSize="{tier.length}" y="{i}" name="{tier[1].name}"/>
-            <Biome x="2" rowSize="{tier.length}" y="{i}" name="{tier[2].name}"/>
-            <Biome x="3" rowSize="{tier.length}" y="{i}" name="{tier[3].name}"/>
+            <Biome x="0" rowSize="{tier.length}" y="{tier[0].row}}" name="{tier[0].name}" row="{tier[0].row}"/>
+            <Biome x="1" rowSize="{tier.length}" y="{tier[1].row}" name="{tier[1].name}" row="{tier[1].row}"/>
+            <Biome x="2" rowSize="{tier.length}" y="{tier[2].row}" name="{tier[2].name}" row="{tier[2].row}"/>
+            <Biome x="3" rowSize="{tier.length}" y="{tier[3].row}" name="{tier[3].name}" row="{tier[3].row}"/>
         {/if}
     {/each}
 

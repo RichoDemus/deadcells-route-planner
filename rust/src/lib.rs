@@ -1,6 +1,7 @@
 use wasm_bindgen::prelude::*;
 use js_sys::{Array, Map};
 use crate::core::Biome;
+use web_sys::console;
 
 mod core;
 mod biomes;
@@ -19,13 +20,20 @@ pub fn get_biomes() -> Result<Map, JsValue> {
         .map_err(|msg|JsValue::from(msg))?;
 
 
-    let init: Vec<Vec<Biome>> = (0..=11).map(|i|(vec![])).collect();
+    // todo dont hardcore '14'
+    let init: Vec<Vec<Biome>> = (1..14).map(|i|(vec![])).collect();
 
     let biomes = biomes.into_iter()
-        .map(|biome|(biome.tier, biome))
+        .map(|biome|(biome.row, biome))
         .fold(init, |mut acc, (tier, biome)|{
-            let mut biomes = acc.get_mut(tier
-            ).expect(format!("No such tier: {}", tier).as_str());
+            let mut biomes = acc.get_mut(tier);
+            let mut biomes = match biomes {
+                Some(b) => b,
+                None => {
+                    console::log_1(&JsValue::from(format!("no row at {}", tier)));
+                    panic!()
+                },
+            };
             biomes.push(biome);
             acc
         });
@@ -34,18 +42,16 @@ pub fn get_biomes() -> Result<Map, JsValue> {
 
     let map = Map::new();
     for (i,tier) in biomes.iter().enumerate() {
+        if tier.is_empty() {
+            continue;
+        }
         map.set(&JsValue::from_f64(i as f64), &JsValue::from_serde(tier).expect("serialize biomes"));
     }
 
     Ok(map)
-
-
-    // core::get_biomes()
-    //     .map_err(|msg|msg.into())
-    //     .map(|biomes|JsValue::from_serde(&biomes).expect("serialize biomes"))
 }
 
-#[cfg(test)]
+#[cfg(all(test, target_arch = "wasm32"))]
 mod tests {
     use super::*;
 

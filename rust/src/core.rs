@@ -12,7 +12,8 @@ pub(crate) fn get_biomes() -> Result<Vec<Biome>, String> {
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
 pub struct Biome {
     pub name: String,
-    pub tier: usize,
+    pub row: usize,
+    pub column: usize,
     pub power_scrolls: u8,
     pub dual_power_scrolls: u8,
     pub cursed_chest_chance: u8,
@@ -29,7 +30,8 @@ impl From<(&str, Vec<&str>)> for Biome {
             .collect();
         Biome {
             name: name.to_string(),
-            tier: 0,
+            row: 0,
+            column: 0,
             power_scrolls: 0,
             dual_power_scrolls: 0,
             cursed_chest_chance: 0,
@@ -269,7 +271,8 @@ mod tests {
 
         let expected = Biome {
             name: "name".to_string(),
-            tier: 0,
+            row: 0,
+            column: 0,
             power_scrolls: 0,
             dual_power_scrolls: 0,
             cursed_chest_chance: 0,

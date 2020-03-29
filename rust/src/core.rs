@@ -8,8 +8,10 @@ pub fn get_biomes() -> Result<Vec<Biome>, String> {
     get_biomes_from_str(*biomes::get_json())
 }
 
-pub(crate) fn get_biomes_and_paths() -> Result<(Vec<Vec<Biome>>, Vec<Path>), String> {
-    let biomes = get_biomes_from_str(*biomes::get_json())?;
+pub(crate) fn get_biomes_and_paths(blacklist: Vec<Id>, biomes: Option<Vec<Biome>>) -> Result<(Vec<Vec<Biome>>, Vec<Path>), String> {
+    let biomes:Vec<Biome> = biomes
+        .map(|v|Ok(v))
+        .unwrap_or_else(||get_biomes_from_str(*biomes::get_json()))?;
 
     let paths = calculate_paths(&biomes);
     let biomes = order_biomes_by_tier(biomes)?;
@@ -353,8 +355,9 @@ fn calculate_paths(biomes: &Vec<Biome>) -> Vec<Path> {
             let end_columns = calc_columns(biomes, end_biome.row) as u8;
             let length = calc_length(biome, end_biome);
 
+            // todo fix tolowercase hack
             result.push(Path {
-                id: format!("{}-{}", start_id.to_string(), exit.destination.to_string()),
+                id: format!("{}-{}", start_id.to_string().to_lowercase(), exit.destination.to_string().to_lowercase()),
                 start_column,
                 start_columns,
                 end_column,
@@ -553,7 +556,11 @@ mod tests {
             result,
             vec![
                 Path {
-                    id: format!("{}-{}", Id::Prisonquart.to_string(), Id::Arboretum),
+                    id: format!(
+                        "{}-{}",
+                        Id::Prisonquart.to_string().to_lowercase(),
+                        Id::Arboretum.to_string().to_lowercase()
+                    ),
                     start_column: 1,
                     start_columns: 1,
                     end_column: 1,
@@ -564,8 +571,8 @@ mod tests {
                 Path {
                     id: format!(
                         "{}-{}",
-                        Id::Arboretum.to_string(),
-                        Id::Prisondepths.to_string()
+                        Id::Arboretum.to_string().to_lowercase(),
+                        Id::Prisondepths.to_string().to_lowercase()
                     ),
                     start_column: 1,
                     start_columns: 2,
@@ -575,7 +582,11 @@ mod tests {
                     length: 1,
                 },
                 Path {
-                    id: format!("{}-{}", Id::Arboretum.to_string(), Id::Morass.to_string()),
+                    id: format!(
+                        "{}-{}",
+                        Id::Arboretum.to_string().to_lowercase(),
+                        Id::Morass.to_string().to_lowercase()
+                    ),
                     start_column: 1,
                     start_columns: 2,
                     end_column: 1,
@@ -586,8 +597,8 @@ mod tests {
                 Path {
                     id: format!(
                         "{}-{}",
-                        Id::Prisondepths.to_string(),
-                        Id::Morass.to_string()
+                        Id::Prisondepths.to_string().to_lowercase(),
+                        Id::Morass.to_string().to_lowercase()
                     ),
                     start_column: 1,
                     start_columns: 1,

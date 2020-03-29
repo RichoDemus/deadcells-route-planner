@@ -4,14 +4,16 @@
     import {get_biomes} from "../call_wasm";
     import StraightArrow from "./StraightArrow.svelte";
     import SidestepArrow from "./SidestepArrow.svelte";
+    import {backlistedBiomes} from "../stores";
 
     let biomes = [];
     let paths = [];
     onMount(async () => {
-        biomes = await get_biomes();
-
-        paths = biomes.get("paths");
-        biomes.delete("paths");
+        await updateBiomes([]);
+        // biomes = await get_biomes();
+        //
+        // paths = biomes.get("paths");
+        // biomes.delete("paths");
 
         // console.log("biomes: ", biomes);
         // console.log("paths: ", paths);
@@ -26,6 +28,18 @@
         // e.target.style.opacity = "0.1";
         console.log(e.target.parentElement)
         // alert("click")
+    }
+
+    const unsubscribe = backlistedBiomes.subscribe(value => {
+        console.log("blacklist updated:", value);
+        updateBiomes(value);
+    });
+
+    async function updateBiomes(blacklist) {
+        biomes = await get_biomes(Array.from(blacklist));
+        // console.log("data from rust: ", biomes);
+        paths = biomes.get("paths");
+        biomes.delete("paths");
     }
 
     // const biomes = [
@@ -53,19 +67,19 @@
 
     {#each [...biomes] as [i,tier], ii}
         {#if tier.length === 1}
-            <Biome x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
+            <Biome id="{tier[0].id}" x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
         {:else if tier.length === 2}
-            <Biome x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
-            <Biome x="1" rowSize="{tier.length}" name="{tier[1].name}" row="{tier[1].row}"/>
+            <Biome id="{tier[0].id}" x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
+            <Biome id="{tier[1].id}" x="1" rowSize="{tier.length}" name="{tier[1].name}" row="{tier[1].row}"/>
         {:else if tier.length === 3}
-            <Biome x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
-            <Biome x="1" rowSize="{tier.length}" name="{tier[1].name}" row="{tier[1].row}"/>
-            <Biome x="2" rowSize="{tier.length}" name="{tier[2].name}" row="{tier[2].row}"/>
+            <Biome id="{tier[0].id}" x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
+            <Biome id="{tier[1].id}" x="1" rowSize="{tier.length}" name="{tier[1].name}" row="{tier[1].row}"/>
+            <Biome id="{tier[2].id}" x="2" rowSize="{tier.length}" name="{tier[2].name}" row="{tier[2].row}"/>
         {:else if tier.length === 4}
-            <Biome x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
-            <Biome x="1" rowSize="{tier.length}" name="{tier[1].name}" row="{tier[1].row}"/>
-            <Biome x="2" rowSize="{tier.length}" name="{tier[2].name}" row="{tier[2].row}"/>
-            <Biome x="3" rowSize="{tier.length}" name="{tier[3].name}" row="{tier[3].row}"/>
+            <Biome id="{tier[0].id}" x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
+            <Biome id="{tier[1].id}" x="1" rowSize="{tier.length}" name="{tier[1].name}" row="{tier[1].row}"/>
+            <Biome id="{tier[2].id}" x="2" rowSize="{tier.length}" name="{tier[2].name}" row="{tier[2].row}"/>
+            <Biome id="{tier[3].id}" x="3" rowSize="{tier.length}" name="{tier[3].name}" row="{tier[3].row}"/>
         {/if}
     {/each}
 

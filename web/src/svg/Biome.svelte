@@ -1,6 +1,8 @@
 <script>
     import {calcXForBiome} from "./positionCalculations";
+    import {backlistedBiomes} from "../stores";
 
+    export let id;
     export let name = "no-name";
     export let row = "-";
     export let x;
@@ -15,6 +17,12 @@
     // console.log("name is ", name, " and row size is ", rowSize, " and newX ", newX);
     // console.log("name is ", name, " row is ", row, " and row size is ", rowSize, " and newX ", newX);
 
+    function click(event) {
+        backlistedBiomes.update(biomes => {
+            biomes.add(id);
+            return biomes;
+        });
+    }
 </script>
 
 <style>
@@ -23,5 +31,5 @@
     }
 </style>
 
-<rect x="{newX}" y="{xNew}" width="200" height="100"/>
+<rect on:click={click} x="{newX}" y="{xNew}" width="200" height="100"/>
 <text x="{newX+10}" y="{xNew+20}">{name}<!--({row})--></text>

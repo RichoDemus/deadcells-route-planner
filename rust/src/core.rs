@@ -385,6 +385,15 @@ mod tests {
     }
 
     #[test]
+    fn test_id_serde() {
+        let json = serde_json::to_string(&Id::Castle).unwrap();
+        assert_eq!(json, String::from("\"castle\""));
+
+        let id: Id = serde_json::from_str("\"castle\"").unwrap();
+        assert_eq!(id, Id::Castle);
+    }
+
+    #[test]
     fn parse_json() {
         let biomes = get_biomes().unwrap();
         assert_eq!(biomes.len(), 25);

@@ -105,11 +105,11 @@ fn get_biomes_from_str(json: &str) -> Result<Vec<Biome>, String> {
     serde_json::from_str(json).map_err(|err| format!("Failed to parse json: {}", err))
 }
 
-fn take_string_return_string(s:&str) -> Box<&str> {
+fn take_string_return_string(s: &str) -> Box<&str> {
     Box::new(s)
 }
 
-fn take_int_return_int(i:Biome) -> Biome {
+fn take_int_return_int(i: Biome) -> Biome {
     i + 1
 }
 
@@ -176,7 +176,12 @@ pub fn get_path_with_most_scrolls<'b>(
 ) -> (u8, &'b Vec<&'b Biome>) {
     let mut paths_with_scrolls: Vec<(u8, &Vec<&Biome>)> = paths
         .iter()
-        .map(|path| (calculate_scrolls(path, &boss_cells, include_dual_scrolls), path))
+        .map(|path| {
+            (
+                calculate_scrolls(path, &boss_cells, include_dual_scrolls),
+                path,
+            )
+        })
         .collect();
 
     paths_with_scrolls
@@ -185,11 +190,7 @@ pub fn get_path_with_most_scrolls<'b>(
     paths_with_scrolls.swap_remove(0)
 }
 
-fn calculate_scrolls(
-    path: &Vec<&Biome> ,
-    boss_cells: &BossCells,
-                     include_dual_scrolls: bool,
-) -> u8 {
+fn calculate_scrolls(path: &Vec<&Biome>, boss_cells: &BossCells, include_dual_scrolls: bool) -> u8 {
     let (power_scrolls, dual_scrolls, fragments, cursed_chest_probabilities) =
         sum_collectibles_for_path(path, boss_cells);
 
@@ -198,28 +199,24 @@ fn calculate_scrolls(
 
     //todo also add scrolls from transitions (like from Haven to Throne Room)
     if include_dual_scrolls {
-            power_scrolls + dual_scrolls + fragments / 4 + scrolls_from_cursed_chests
+        power_scrolls + dual_scrolls + fragments / 4 + scrolls_from_cursed_chests
     } else {
-            power_scrolls + fragments / 4 + scrolls_from_cursed_chests
+        power_scrolls + fragments / 4 + scrolls_from_cursed_chests
     }
 }
 
-fn sum_collectibles_for_path(
-    path: &Vec<&Biome> ,
-    boss_cells: &BossCells,
-) -> (u8, u8, u8, u16) {
-        path.iter().fold(
-            (0, 0, 0, 0),
-            |(power_scrolls, dual_scrolls, fragments, cursed_chest_probabilites),
-             biome| {
-                (
-                    power_scrolls + biome.power_scrolls,
-                    dual_scrolls + biome.dual_power_scrolls,
-                    fragments + biome.scroll_fragments.get_fragments(&boss_cells),
-                    cursed_chest_probabilites + biome.cursed_chest_chance as u16,
-                )
-            },
-        )
+fn sum_collectibles_for_path(path: &Vec<&Biome>, boss_cells: &BossCells) -> (u8, u8, u8, u16) {
+    path.iter().fold(
+        (0, 0, 0, 0),
+        |(power_scrolls, dual_scrolls, fragments, cursed_chest_probabilites), biome| {
+            (
+                power_scrolls + biome.power_scrolls,
+                dual_scrolls + biome.dual_power_scrolls,
+                fragments + biome.scroll_fragments.get_fragments(&boss_cells),
+                cursed_chest_probabilites + biome.cursed_chest_chance as u16,
+            )
+        },
+    )
 }
 
 fn calculate_scrolls_from_cursed_chests(probability: u16) -> u8 {
@@ -227,19 +224,29 @@ fn calculate_scrolls_from_cursed_chests(probability: u16) -> u8 {
 }
 
 fn calculate_collectibles_from_fragments(
-    (power_scrolls, dual_scrolls, fragments, cursed_chest_probabilities): (u8, u8, u8, u16)
+    (power_scrolls, dual_scrolls, fragments, cursed_chest_probabilities): (u8, u8, u8, u16),
 ) -> (u8, u8, u8, u16) {
-    let new_scrolls = fragments/4;
-    let leftover_fragments = fragments%4;
-    (power_scrolls + new_scrolls, dual_scrolls, leftover_fragments, cursed_chest_probabilities)
+    let new_scrolls = fragments / 4;
+    let leftover_fragments = fragments % 4;
+    (
+        power_scrolls + new_scrolls,
+        dual_scrolls,
+        leftover_fragments,
+        cursed_chest_probabilities,
+    )
 }
 
 fn calculate_collectibles_from_cursed_chests(
-    (power_scrolls, dual_scrolls, fragments, cursed_chest_probabilities): (u8, u8, u8, u16)
+    (power_scrolls, dual_scrolls, fragments, cursed_chest_probabilities): (u8, u8, u8, u16),
 ) -> (u8, u8, u8, u16) {
-    let new_scrolls = (cursed_chest_probabilities/100) as u8;
+    let new_scrolls = (cursed_chest_probabilities / 100) as u8;
     let leftover_chest_probability = cursed_chest_probabilities % 100;
-    (power_scrolls + new_scrolls, dual_scrolls, fragments, leftover_chest_probability)
+    (
+        power_scrolls + new_scrolls,
+        dual_scrolls,
+        fragments,
+        leftover_chest_probability,
+    )
 }
 
 #[cfg(test)]
@@ -331,14 +338,24 @@ mod tests {
 
         // assert_eq!(185, paths.len());
 
-        let mut result: Vec<((u8,u8,u8,u16), Vec<&String>)> = paths.into_iter()
-            .map(|path|(sum_collectibles_for_path(&path, &BossCells::Five), path))
-            .map(|(collectibles, path)|(calculate_collectibles_from_fragments(collectibles), path))
-            .map(|(collectibles, path)|(calculate_collectibles_from_cursed_chests(collectibles), path))
-            .map(|(collectibles, path)|(collectibles, path_to_names(&path)))
+        let mut result: Vec<((u8, u8, u8, u16), Vec<&String>)> = paths
+            .into_iter()
+            .map(|path| (sum_collectibles_for_path(&path, &BossCells::Five), path))
+            .map(|(collectibles, path)| (calculate_collectibles_from_fragments(collectibles), path))
+            .map(|(collectibles, path)| {
+                (
+                    calculate_collectibles_from_cursed_chests(collectibles),
+                    path,
+                )
+            })
+            .map(|(collectibles, path)| (collectibles, path_to_names(&path)))
             .collect();
 
-        result.sort_by(|((left_scrolls,_,_,_),_),((right_scrolls,_,_,_),_)|left_scrolls.cmp(&right_scrolls));
+        result.sort_by(
+            |((left_scrolls, _, _, _), _), ((right_scrolls, _, _, _), _)| {
+                left_scrolls.cmp(&right_scrolls)
+            },
+        );
         result.reverse();
 
         for (collectibles, path) in result {
@@ -377,19 +394,19 @@ mod tests {
 
     #[test]
     fn test_update_collectibes_with_scrolls_from_scroll_fragments() {
-        let input = (10,0,5,0);
+        let input = (10, 0, 5, 0);
         let result = calculate_collectibles_from_fragments(input);
 
-        assert_eq!(result, (11,0,1,0))
+        assert_eq!(result, (11, 0, 1, 0))
     }
 
     #[test]
-    fn test_calculate_collectibles_from_cursed_chests(){
-        let input = (10,0,0,190);
+    fn test_calculate_collectibles_from_cursed_chests() {
+        let input = (10, 0, 0, 190);
         let result = calculate_collectibles_from_cursed_chests(input);
 
-        assert_eq!(result, (11,0,0,90))
-}
+        assert_eq!(result, (11, 0, 0, 90))
+    }
 
     fn path_to_names<'b>(path: &Vec<&'b Biome>) -> Vec<&'b String> {
         path.iter().map(|biome| &biome.name).collect()

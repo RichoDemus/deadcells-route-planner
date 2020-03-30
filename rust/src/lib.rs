@@ -1,5 +1,5 @@
 use crate::core::{Biome, Id};
-use js_sys::{Map, Array};
+use js_sys::{Array, Map};
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
@@ -17,17 +17,16 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 #[wasm_bindgen]
 pub fn get_biomes(blacklist: Array) -> Result<Map, JsValue> {
     console_error_panic_hook::set_once();
-    let blacklist: Vec<Id> = blacklist.to_vec()
-        .into_iter().map(|element| {
-        JsValue::into_serde::<Id>(&element).expect("failed to deserialize blacklist")
-    })
+    let blacklist: Vec<Id> = blacklist
+        .to_vec()
+        .into_iter()
+        .map(|element| {
+            JsValue::into_serde::<Id>(&element).expect("failed to deserialize blacklist")
+        })
         .collect();
 
-    println!("lib.get_biomes: blacklist: {:?}", blacklist);
-    let (biomes, paths) = core::get_biomes_and_paths(blacklist, None)
-        .map_err(|msg| JsValue::from(msg))?;
-
-
+    let (biomes, paths) =
+        core::get_biomes_and_paths(blacklist, None).map_err(|msg| JsValue::from(msg))?;
 
     let map = Map::new();
     for (i, tier) in biomes.iter().enumerate() {
@@ -55,6 +54,6 @@ mod tests {
 
     #[test]
     fn test_get_biomes() {
-        let result = get_biomes();
+        let result = get_biomes(Array::new());
     }
 }

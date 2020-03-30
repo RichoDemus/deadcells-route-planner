@@ -16,7 +16,6 @@
         // biomes.delete("paths");
 
         // console.log("biomes: ", biomes);
-        // console.log("paths: ", paths);
     });
 
     function clickety(e) {
@@ -40,6 +39,7 @@
         // console.log("data from rust: ", biomes);
         paths = biomes.get("paths");
         biomes.delete("paths");
+        console.log("paths: ", paths);
     }
 
     // const biomes = [
@@ -67,19 +67,19 @@
 
     {#each [...biomes] as [i,tier], ii}
         {#if tier.length === 1}
-            <Biome id="{tier[0].id}" x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
+            <Biome id="{tier[0].id}" x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}" enabled="{tier[0].enabled}"/>
         {:else if tier.length === 2}
-            <Biome id="{tier[0].id}" x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
-            <Biome id="{tier[1].id}" x="1" rowSize="{tier.length}" name="{tier[1].name}" row="{tier[1].row}"/>
+            <Biome id="{tier[0].id}" x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}" enabled="{tier[0].enabled}"/>
+            <Biome id="{tier[1].id}" x="1" rowSize="{tier.length}" name="{tier[1].name}" row="{tier[1].row}" enabled="{tier[1].enabled}"/>
         {:else if tier.length === 3}
-            <Biome id="{tier[0].id}" x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
-            <Biome id="{tier[1].id}" x="1" rowSize="{tier.length}" name="{tier[1].name}" row="{tier[1].row}"/>
-            <Biome id="{tier[2].id}" x="2" rowSize="{tier.length}" name="{tier[2].name}" row="{tier[2].row}"/>
+            <Biome id="{tier[0].id}" x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}" enabled="{tier[0].enabled}"/>
+            <Biome id="{tier[1].id}" x="1" rowSize="{tier.length}" name="{tier[1].name}" row="{tier[1].row}" enabled="{tier[1].enabled}"/>
+            <Biome id="{tier[2].id}" x="2" rowSize="{tier.length}" name="{tier[2].name}" row="{tier[2].row}" enabled="{tier[2].enabled}"/>
         {:else if tier.length === 4}
-            <Biome id="{tier[0].id}" x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}"/>
-            <Biome id="{tier[1].id}" x="1" rowSize="{tier.length}" name="{tier[1].name}" row="{tier[1].row}"/>
-            <Biome id="{tier[2].id}" x="2" rowSize="{tier.length}" name="{tier[2].name}" row="{tier[2].row}"/>
-            <Biome id="{tier[3].id}" x="3" rowSize="{tier.length}" name="{tier[3].name}" row="{tier[3].row}"/>
+            <Biome id="{tier[0].id}" x="0" rowSize="{tier.length}" name="{tier[0].name}" row="{tier[0].row}" enabled="{tier[0].enabled}"/>
+            <Biome id="{tier[1].id}" x="1" rowSize="{tier.length}" name="{tier[1].name}" row="{tier[1].row}" enabled="{tier[1].enabled}"/>
+            <Biome id="{tier[2].id}" x="2" rowSize="{tier.length}" name="{tier[2].name}" row="{tier[2].row}" enabled="{tier[2].enabled}"/>
+            <Biome id="{tier[3].id}" x="3" rowSize="{tier.length}" name="{tier[3].name}" row="{tier[3].row}" enabled="{tier[3].enabled}"/>
         {/if}
     {/each}
 
@@ -93,6 +93,7 @@
                            row="{path.row}"
                            length="{path.length}"
                            endColumnOffset="120"
+                           enabled="{path.enabled}"
             />
             {:else}
             <SidestepArrow id="{path.id}"
@@ -102,6 +103,7 @@
                            endColumns="{path.endColumns}"
                            row="{path.row}"
                            length="{path.length}"
+                           enabled="{path.enabled}"
             />
             {/if}}
 

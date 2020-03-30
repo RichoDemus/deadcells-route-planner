@@ -8,12 +8,17 @@ pub fn get_biomes() -> Result<Vec<Biome>, String> {
     get_biomes_from_str(*biomes::get_json())
 }
 
-pub(crate) fn get_biomes_and_paths(blacklist: Vec<Id>, biomes: Option<Vec<Biome>>) -> Result<(Vec<Vec<Biome>>, Vec<Path>), String> {
-    let biomes:Vec<Biome> = biomes
-        .map(|v|Ok(v))
-        .unwrap_or_else(||get_biomes_from_str(*biomes::get_json()))?;
+pub(crate) fn get_biomes_and_paths(
+    blacklist: Vec<Id>,
+    biomes: Option<Vec<Biome>>,
+) -> Result<(Vec<Vec<Biome>>, Vec<Path>), String> {
+    let biomes: Vec<Biome> = biomes
+        .map(|v| Ok(v))
+        .unwrap_or_else(|| get_biomes_from_str(*biomes::get_json()))?;
 
-    let paths = calculate_paths(&biomes);
+    let paths = calculate_paths(&biomes, &blacklist);
+
+    let biomes = disable_blacklisted_biomes(biomes, &blacklist);
     let biomes = order_biomes_by_tier(biomes)?;
 
     Ok((biomes, paths))
@@ -32,6 +37,8 @@ pub struct Biome {
     pub scroll_fragments: ScrollFragments,
     pub gear_level: u8,
     pub exits: Vec<Exit>,
+    #[serde(skip_deserializing)]
+    pub enabled: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
@@ -166,6 +173,7 @@ pub struct Path {
     end_columns: u8,
     row: u8,
     length: u8,
+    enabled: bool,
 }
 
 fn get_biomes_from_str(json: &str) -> Result<Vec<Biome>, String> {
@@ -325,7 +333,7 @@ fn calculate_collectibles_from_cursed_chests(
 }
 
 // todo investigate and maybe do this in a  const fn :o
-fn calculate_paths(biomes: &Vec<Biome>) -> Vec<Path> {
+fn calculate_paths(biomes: &Vec<Biome>, blacklist: &Vec<Id>) -> Vec<Path> {
     let mut result = vec![];
 
     fn calc_columns(biomes: &Vec<Biome>, row: usize) -> usize {
@@ -343,13 +351,21 @@ fn calculate_paths(biomes: &Vec<Biome>) -> Vec<Path> {
             .expect(format!("No biome with id {:?}", id).as_str())
     }
 
-    for biome in biomes {
+    fn enabled(start_id: &Id, end_id: &Id, blacklist: &Vec<Id>) -> bool {
+        return if blacklist.contains(&start_id) || blacklist.contains(&end_id) {
+            false
+        } else {
+            true
+        };
+    }
+
+    'biome: for biome in biomes {
         let start_id = biome.id.clone();
         let row = biome.row as u8;
         let start_column = biome.column as u8;
         let start_columns = calc_columns(biomes, biome.row) as u8;
 
-        for exit in &biome.exits {
+        'exit: for exit in &biome.exits {
             let end_biome = get_biome(biomes, &exit.destination);
             let end_column = end_biome.column as u8;
             let end_columns = calc_columns(biomes, end_biome.row) as u8;
@@ -357,18 +373,33 @@ fn calculate_paths(biomes: &Vec<Biome>) -> Vec<Path> {
 
             // todo fix tolowercase hack
             result.push(Path {
-                id: format!("{}-{}", start_id.to_string().to_lowercase(), exit.destination.to_string().to_lowercase()),
+                id: format!(
+                    "{}-{}",
+                    start_id.to_string().to_lowercase(),
+                    exit.destination.to_string().to_lowercase()
+                ),
                 start_column,
                 start_columns,
                 end_column,
                 end_columns,
                 row,
                 length,
+                enabled: enabled(&start_id, &end_biome.id, blacklist),
             });
         }
     }
 
     result
+}
+
+fn disable_blacklisted_biomes(biomes: Vec<Biome>, blacklist: &Vec<Id>) -> Vec<Biome> {
+    biomes
+        .into_iter()
+        .map(|mut biome| {
+            biome.enabled = !blacklist.contains(&biome.id);
+            biome
+        })
+        .collect()
 }
 
 #[cfg(test)]
@@ -428,6 +459,7 @@ mod tests {
                     power_scrolls: None,
                 },
             ],
+            enabled: true,
         };
 
         assert_eq!(biome, expected);
@@ -541,77 +573,6 @@ mod tests {
     }
 
     #[test]
-    fn test_builds_paths() {
-        let input: Vec<Biome> = vec![
-            (Id::Prisonquart, 1, 1, vec![Id::Arboretum]).into(),
-            (Id::Arboretum, 2, 1, vec![Id::Prisondepths, Id::Morass]).into(),
-            (Id::Promenade, 2, 2, vec![]).into(),
-            (Id::Prisondepths, 3, 1, vec![Id::Morass]).into(),
-            (Id::Morass, 4, 1, vec![]).into(),
-        ];
-
-        let result = calculate_paths(&input);
-
-        assert_eq!(
-            result,
-            vec![
-                Path {
-                    id: format!(
-                        "{}-{}",
-                        Id::Prisonquart.to_string().to_lowercase(),
-                        Id::Arboretum.to_string().to_lowercase()
-                    ),
-                    start_column: 1,
-                    start_columns: 1,
-                    end_column: 1,
-                    end_columns: 2,
-                    row: 1,
-                    length: 1,
-                },
-                Path {
-                    id: format!(
-                        "{}-{}",
-                        Id::Arboretum.to_string().to_lowercase(),
-                        Id::Prisondepths.to_string().to_lowercase()
-                    ),
-                    start_column: 1,
-                    start_columns: 2,
-                    end_column: 1,
-                    end_columns: 1,
-                    row: 2,
-                    length: 1,
-                },
-                Path {
-                    id: format!(
-                        "{}-{}",
-                        Id::Arboretum.to_string().to_lowercase(),
-                        Id::Morass.to_string().to_lowercase()
-                    ),
-                    start_column: 1,
-                    start_columns: 2,
-                    end_column: 1,
-                    end_columns: 1,
-                    row: 2,
-                    length: 2,
-                },
-                Path {
-                    id: format!(
-                        "{}-{}",
-                        Id::Prisondepths.to_string().to_lowercase(),
-                        Id::Morass.to_string().to_lowercase()
-                    ),
-                    start_column: 1,
-                    start_columns: 1,
-                    end_column: 1,
-                    end_columns: 1,
-                    row: 3,
-                    length: 1,
-                },
-            ]
-        );
-    }
-
-    #[test]
     fn test_order_biomes_by_row() {
         let biomes = vec![
             (Id::Prisonquart, 1, 1).into(),
@@ -627,6 +588,182 @@ mod tests {
             vec![
                 vec![(Id::Prisonquart, 1, 1).into()],
                 vec![(Id::Promenade, 2, 1).into(), (Id::Toxicsewers, 2, 2).into()]
+            ]
+        );
+    }
+
+    #[test]
+    fn test_get_biomes_and_paths() {
+        let input: Vec<Biome> = vec![
+            (Id::Prisonquart, 1, 1, vec![Id::Arboretum]).into(),
+            (Id::Arboretum, 2, 1, vec![Id::Prisondepths, Id::Morass]).into(),
+            (Id::Promenade, 2, 2, vec![]).into(),
+            (Id::Prisondepths, 3, 1, vec![Id::Morass]).into(),
+            (Id::Morass, 4, 1, vec![]).into(),
+        ];
+
+        let (biomes, paths) = get_biomes_and_paths(vec![], Some(input)).unwrap();
+
+        assert_eq!(
+            biomes,
+            vec![
+                vec![(Id::Prisonquart, 1, 1, vec![Id::Arboretum]).into()],
+                vec![
+                    (Id::Arboretum, 2, 1, vec![Id::Prisondepths, Id::Morass]).into(),
+                    (Id::Promenade, 2, 2, vec![]).into()
+                ],
+                vec![(Id::Prisondepths, 3, 1, vec![Id::Morass]).into()],
+                vec![(Id::Morass, 4, 1, vec![]).into()],
+            ]
+        );
+
+        assert_eq!(
+            paths,
+            vec![
+                Path {
+                    id: format!(
+                        "{}-{}",
+                        Id::Prisonquart.to_string().to_lowercase(),
+                        Id::Arboretum.to_string().to_lowercase()
+                    ),
+                    start_column: 1,
+                    start_columns: 1,
+                    end_column: 1,
+                    end_columns: 2,
+                    row: 1,
+                    length: 1,
+                    enabled: true,
+                },
+                Path {
+                    id: format!(
+                        "{}-{}",
+                        Id::Arboretum.to_string().to_lowercase(),
+                        Id::Prisondepths.to_string().to_lowercase()
+                    ),
+                    start_column: 1,
+                    start_columns: 2,
+                    end_column: 1,
+                    end_columns: 1,
+                    row: 2,
+                    length: 1,
+                    enabled: true,
+                },
+                Path {
+                    id: format!(
+                        "{}-{}",
+                        Id::Arboretum.to_string().to_lowercase(),
+                        Id::Morass.to_string().to_lowercase()
+                    ),
+                    start_column: 1,
+                    start_columns: 2,
+                    end_column: 1,
+                    end_columns: 1,
+                    row: 2,
+                    length: 2,
+                    enabled: true,
+                },
+                Path {
+                    id: format!(
+                        "{}-{}",
+                        Id::Prisondepths.to_string().to_lowercase(),
+                        Id::Morass.to_string().to_lowercase()
+                    ),
+                    start_column: 1,
+                    start_columns: 1,
+                    end_column: 1,
+                    end_columns: 1,
+                    row: 3,
+                    length: 1,
+                    enabled: true,
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn test_get_biomes_and_paths_one_blacklisted() {
+        let input: Vec<Biome> = vec![
+            (Id::Prisonquart, 1, 1, vec![Id::Arboretum]).into(),
+            (Id::Arboretum, 2, 1, vec![Id::Prisondepths, Id::Morass]).into(),
+            (Id::Promenade, 2, 2, vec![]).into(),
+            (Id::Prisondepths, 3, 1, vec![Id::Morass]).into(),
+            (Id::Morass, 4, 1, vec![]).into(),
+        ];
+
+        let (biomes, paths) = get_biomes_and_paths(vec![Id::Prisondepths], Some(input)).unwrap();
+
+        assert_eq!(
+            biomes,
+            vec![
+                vec![(Id::Prisonquart, 1, 1, vec![Id::Arboretum]).into()],
+                vec![
+                    (Id::Arboretum, 2, 1, vec![Id::Prisondepths, Id::Morass]).into(),
+                    (Id::Promenade, 2, 2, vec![]).into()
+                ],
+                vec![(Id::Prisondepths, 3, 1, vec![Id::Morass], false).into()],
+                vec![(Id::Morass, 4, 1, vec![]).into()],
+            ]
+        );
+
+        assert_eq!(
+            paths,
+            vec![
+                Path {
+                    id: format!(
+                        "{}-{}",
+                        Id::Prisonquart.to_string().to_lowercase(),
+                        Id::Arboretum.to_string().to_lowercase()
+                    ),
+                    start_column: 1,
+                    start_columns: 1,
+                    end_column: 1,
+                    end_columns: 2,
+                    row: 1,
+                    length: 1,
+                    enabled: true,
+                },
+                Path {
+                    id: format!(
+                        "{}-{}",
+                        Id::Arboretum.to_string().to_lowercase(),
+                        Id::Prisondepths.to_string().to_lowercase()
+                    ),
+                    start_column: 1,
+                    start_columns: 2,
+                    end_column: 1,
+                    end_columns: 1,
+                    row: 2,
+                    length: 1,
+                    enabled: false,
+                },
+                Path {
+                    id: format!(
+                        "{}-{}",
+                        Id::Arboretum.to_string().to_lowercase(),
+                        Id::Morass.to_string().to_lowercase()
+                    ),
+                    start_column: 1,
+                    start_columns: 2,
+                    end_column: 1,
+                    end_columns: 1,
+                    row: 2,
+                    length: 2,
+                    enabled: true,
+                },
+                Path {
+                    id: format!(
+                        "{}-{}",
+                        Id::Prisondepths.to_string().to_lowercase(),
+                        Id::Morass.to_string().to_lowercase()
+                    ),
+                    start_column: 1,
+                    start_columns: 1,
+                    end_column: 1,
+                    end_columns: 1,
+                    row: 3,
+                    length: 1,
+                    enabled: false,
+                },
             ]
         );
     }
@@ -654,6 +791,7 @@ mod tests {
                 scroll_fragments: ScrollFragments::default(),
                 gear_level: 0,
                 exits,
+                enabled: true,
             }
         }
     }
@@ -672,6 +810,7 @@ mod tests {
                 scroll_fragments: ScrollFragments::default(),
                 gear_level: 0,
                 exits: vec![],
+                enabled: true,
             }
         }
     }
@@ -691,6 +830,27 @@ mod tests {
                 scroll_fragments: ScrollFragments::default(),
                 gear_level: 0,
                 exits,
+                enabled: true,
+            }
+        }
+    }
+
+    impl From<(Id, usize, usize, Vec<Id>, bool)> for Biome {
+        fn from((id, row, column, exits, enabled): (Id, usize, usize, Vec<Id>, bool)) -> Self {
+            let name = id.to_string();
+            let exits = exits.into_iter().map(|exit| Exit::from(exit)).collect();
+            Biome {
+                id,
+                name,
+                row,
+                column,
+                power_scrolls: 0,
+                dual_power_scrolls: 0,
+                cursed_chest_chance: 0,
+                scroll_fragments: ScrollFragments::default(),
+                gear_level: 0,
+                exits,
+                enabled,
             }
         }
     }

@@ -37,7 +37,7 @@
         stroke: black;
     }
     .disabled {
-        opacity: 0.2;
+        opacity: 0.1;
     }
 </style>
 

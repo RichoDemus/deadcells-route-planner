@@ -1,7 +1,7 @@
 <script>
     import Biome from "./Biome.svelte";
     import {onMount} from "svelte";
-    import {get_biomes} from "../call_wasm";
+    import {getBiomes} from "../callWasm";
     import StraightArrow from "./StraightArrow.svelte";
     import SidestepArrow from "./SidestepArrow.svelte";
     import {backlistedBiomes} from "../stores";
@@ -35,7 +35,7 @@
     });
 
     async function updateBiomes(blacklist) {
-        biomes = await get_biomes(Array.from(blacklist));
+        biomes = await getBiomes(Array.from(blacklist));
         // console.log("data from rust: ", biomes);
         paths = biomes.get("paths");
         biomes.delete("paths");

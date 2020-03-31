@@ -1,9 +1,9 @@
 const imp = import("../pkg/index.js");
 
-export const get_biomes = async function load(blacklist) {
-    const {get_biomes} = await imp
+export const getBiomes = async function load(blacklist) {
+    const {getBiomes} = await imp
         .catch(console.error);
 
     // console.log("call_wasm.get_biomes", blacklist);
-    return get_biomes(blacklist);
+    return getBiomes(blacklist);
 };

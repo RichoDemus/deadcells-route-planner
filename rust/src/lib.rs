@@ -17,7 +17,7 @@ mod core;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = getBiomes)]
 pub fn get_biomes(blacklist: Array) -> Result<Map, JsValue> {
     console_error_panic_hook::set_once();
     let blacklist: Vec<Id> = blacklist

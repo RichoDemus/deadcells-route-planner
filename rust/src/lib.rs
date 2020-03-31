@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate lazy_static;
+
 use crate::core::{Biome, Id};
 use js_sys::{Array, Map};
 use wasm_bindgen::prelude::*;

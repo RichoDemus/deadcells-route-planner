@@ -4,6 +4,10 @@ use crate::biomes;
 use std::fmt;
 use std::fmt::Debug;
 
+lazy_static! {
+    static ref BIOMES: Vec<Biome> = get_biomes_from_str(*biomes::get_json()).unwrap();
+}
+
 pub fn get_biomes() -> Result<Vec<Biome>, String> {
     get_biomes_from_str(*biomes::get_json())
 }
@@ -13,8 +17,10 @@ pub(crate) fn get_biomes_and_paths(
     biomes: Option<Vec<Biome>>,
 ) -> Result<(Vec<Vec<Biome>>, Vec<Path>), String> {
     let biomes: Vec<Biome> = biomes
-        .map(|v| Ok(v))
-        .unwrap_or_else(|| get_biomes_from_str(*biomes::get_json()))?;
+        .unwrap_or_else(|| {
+            let b: &Vec<Biome> = &*BIOMES;
+            b.clone()
+        });
 
     let paths = calculate_paths(&biomes, &blacklist);
 
@@ -24,8 +30,9 @@ pub(crate) fn get_biomes_and_paths(
     Ok((biomes, paths))
 }
 
+// todo remove clone and use borrowed biomes everywhere
 #[serde(deny_unknown_fields)]
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct Biome {
     pub id: Id,
     pub name: String,
@@ -102,7 +109,7 @@ impl fmt::Display for Id {
 }
 
 #[serde(deny_unknown_fields)]
-#[derive(Serialize, Deserialize, Debug, Default, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Default, Eq, PartialEq, Clone)]
 pub struct ScrollFragments {
     #[serde(alias = "1")]
     pub one: Option<u8>,
@@ -143,7 +150,7 @@ pub enum BossCells {
 }
 
 #[serde(deny_unknown_fields)]
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct Exit {
     pub destination: Id,
     pub boss_cell_requirement: Option<u8>,

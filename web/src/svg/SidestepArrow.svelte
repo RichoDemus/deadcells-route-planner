@@ -1,6 +1,7 @@
 <script>
     import {calcXForArrow} from "./positionCalculations";
 
+    export let id;
     export let startColumn;
     export let startColumns;
     export let endColumn;
@@ -22,8 +23,8 @@
 
     let classes = "";
     // enabled = true;
-    // console.log("arrow:",startColumn, startColumns, endColumn, endColumns, row, length)
-    console.log("enabled:", enabled, "type", typeof enabled);
+    // console.log("arrow:",id, "start-column",startColumn, "/",startColumns, "end-column",endColumn, "/",endColumns,"row", row, "length",length)
+   //  console.log("enabled:", enabled, "type", typeof enabled);
 </script>
 
 <style>

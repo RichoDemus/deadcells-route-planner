@@ -8,6 +8,8 @@ use web_sys::console;
 
 mod biomes;
 mod core;
+mod path;
+mod lazies;
 
 // When the `wee_alloc` feature is enabled, this uses `wee_alloc` as the global
 // allocator.

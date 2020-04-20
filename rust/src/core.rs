@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
 
-use crate::lazies;
 use crate::biomes;
+use crate::lazies;
 use crate::path;
+use crate::path::Path;
 use std::fmt;
 use std::fmt::Debug;
-use crate::path::Path;
 
 pub fn get_biomes() -> Result<Vec<Biome>, String> {
     get_biomes_from_str(*biomes::get_json())
@@ -15,11 +15,10 @@ pub(crate) fn get_biomes_and_paths(
     blacklist: Vec<Id>,
     biomes: Option<Vec<Biome>>,
 ) -> Result<(Vec<Vec<Biome>>, Vec<Path>), String> {
-    let biomes: Vec<Biome> = biomes
-        .unwrap_or_else(|| {
-            let b: &Vec<Biome> = &*lazies::BIOMES;
-            b.clone()
-        });
+    let biomes: Vec<Biome> = biomes.unwrap_or_else(|| {
+        let b: &Vec<Biome> = &*lazies::BIOMES;
+        b.clone()
+    });
 
     let (paths, reachable_biomes) = path::get_paths(&blacklist);
 
@@ -812,7 +811,6 @@ mod tests {
             ]
         );
     }
-
 
     fn path_to_names<'b>(path: &Vec<&'b Biome>) -> Vec<&'b String> {
         path.iter().map(|biome| &biome.name).collect()

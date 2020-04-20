@@ -1,7 +1,7 @@
 <script>
     import {calcXForArrow} from "./positionCalculations";
 
-    export let id;
+    // export let id;
     export let startColumn;
     export let startColumns;
     export let endColumn;

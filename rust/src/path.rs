@@ -9,8 +9,7 @@ pub(crate) fn get_paths(blacklist: &Vec<Id>) -> (Vec<Path>, Vec<Id>) {
 
 fn get_paths_from(all_biomes: &Vec<Biome>, paths: &Vec<Vec<&Biome>>, blacklist: &Vec<Id>) -> (Vec<Path>, Vec<Id>) {
     let result = apply_blacklist(paths, blacklist);
-    let result = biomes_paths_to_paths(all_biomes, result);
-    result
+    biomes_paths_to_paths(all_biomes, result)
 }
 
 // todo investigate and maybe do this in a  const fn :o

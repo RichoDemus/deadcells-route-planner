@@ -3,11 +3,11 @@ use crate::core::Exit;
 use crate::lazies;
 use serde::Serialize;
 
-pub(crate) fn get_paths(blacklist: &Vec<Id>) -> Vec<Path> {
+pub(crate) fn get_paths(blacklist: &Vec<Id>) -> (Vec<Path>, Vec<Id>) {
     get_paths_from(&*lazies::BIOMES,&*lazies::RAW_PATHS, blacklist)
 }
 
-fn get_paths_from(all_biomes: &Vec<Biome>, paths: &Vec<Vec<&Biome>>, blacklist: &Vec<Id>) -> Vec<Path> {
+fn get_paths_from(all_biomes: &Vec<Biome>, paths: &Vec<Vec<&Biome>>, blacklist: &Vec<Id>) -> (Vec<Path>, Vec<Id>) {
     let result = apply_blacklist(paths, blacklist);
     let result = biomes_paths_to_paths(all_biomes, result);
     result
@@ -111,8 +111,9 @@ pub(crate) fn get_all_paths() {
 
 }
 
-fn biomes_paths_to_paths<'b>(all_biomes: &Vec<Biome>, biomes: Vec<ToggleablePath>) -> Vec<Path>{
+fn biomes_paths_to_paths<'b>(all_biomes: &Vec<Biome>, biomes: Vec<ToggleablePath>) -> (Vec<Path>, Vec<Id>) {
     let mut result = vec![];
+    let mut reachable_biomes:Vec<Id> = all_biomes.first().iter().map(|b|b.id.clone()).collect();
 
     for toggleable_path in biomes {
         let ToggleablePath{enabled, path} = toggleable_path;
@@ -158,6 +159,10 @@ fn biomes_paths_to_paths<'b>(all_biomes: &Vec<Biome>, biomes: Vec<ToggleablePath
                             },
                             None => panic!("array elem dissapreared :o")
                         }
+                        // also flag this biome as reachable
+                        if !reachable_biomes.contains(&end_biome.id) {
+                            reachable_biomes.push(end_biome.id.clone())
+                        }
                     }
                 },
                 None => {
@@ -167,7 +172,7 @@ fn biomes_paths_to_paths<'b>(all_biomes: &Vec<Biome>, biomes: Vec<ToggleablePath
         }
     }
 
-    result
+    (result, reachable_biomes)
 }
 
 fn deduplicate_paths(mut paths: Vec<Path>) -> Vec<Path> {
@@ -355,7 +360,8 @@ mod tests {
         ];
 
         let result = find_paths(&biomes)?;
-        let result = get_paths_from(&biomes,&result, &vec![Id::Arboretum]);
+        // todo check reachable biomes
+        let (result,_) = get_paths_from(&biomes,&result, &vec![Id::Arboretum]);
 
         // let result = find_paths(&biomes)?;
         //

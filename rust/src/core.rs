@@ -21,9 +21,9 @@ pub(crate) fn get_biomes_and_paths(
             b.clone()
         });
 
-    let paths = path::get_paths(&blacklist);
+    let (paths, reachable_biomes) = path::get_paths(&blacklist);
 
-    let biomes = disable_blacklisted_biomes(biomes, &blacklist);
+    let biomes = filter_reachable_biomes(biomes, &reachable_biomes);
     let biomes = order_biomes_by_tier(biomes)?;
 
     Ok((biomes, paths))
@@ -382,11 +382,11 @@ fn calculate_paths_old(biomes: &Vec<Biome>, blacklist: &Vec<Id>) -> Vec<Path> {
     result
 }
 
-fn disable_blacklisted_biomes(biomes: Vec<Biome>, blacklist: &Vec<Id>) -> Vec<Biome> {
+fn filter_reachable_biomes(biomes: Vec<Biome>, whitelist: &Vec<Id>) -> Vec<Biome> {
     biomes
         .into_iter()
         .map(|mut biome| {
-            biome.enabled = !blacklist.contains(&biome.id);
+            biome.enabled = whitelist.contains(&biome.id);
             biome
         })
         .collect()

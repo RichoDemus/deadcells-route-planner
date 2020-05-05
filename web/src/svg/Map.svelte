@@ -67,7 +67,17 @@
 
     {#each [...biomes] as [i,tier], ii}
         {#each tier as biome, j}
-                <Biome id="{biome.id}" x="{j}" rowSize="{tier.length}" name="{biome.name}" row="{biome.row}" enabled="{biome.enabled}"/>
+            <Biome
+                    id="{biome.id}"
+                    x="{j}"
+                    rowSize="{tier.length}"
+                    name="{biome.name}"
+                    row="{biome.row}"
+                    enabled="{biome.enabled}"
+                    powerScrolls="{biome.power_scrolls}"
+                    dualPowerScrolls="{biome.dual_power_scrolls}"
+                    cursedChestChance="{biome.cursed_chest_chance}"
+            />
         {/each}
     {/each}
 

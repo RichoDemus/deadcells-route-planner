@@ -7,7 +7,10 @@
     export let row = "-";
     export let x;
     export let rowSize;
-    export let enabled
+    export let enabled;
+    export let powerScrolls;
+    export let dualPowerScrolls;
+    export let cursedChestChance;
 
     let xNew = row * 200 - 200;
 
@@ -39,4 +42,6 @@
 </style>
 
 <rect class:disabled="{ !enabled }" on:click={click} x="{newX}" y="{xNew}" width="200" height="100"/>
-<text class:disabled="{ !enabled }" x="{newX+10}" y="{xNew+20}">{name}<!--({row})--></text>
+<text class:disabled="{ !enabled }" x="{newX+10}" y="{xNew+20}">{name}</text>
+<text class:disabled="{ !enabled }" x="{newX+10}" y="{xNew+40}">Scrolls: {powerScrolls}/{dualPowerScrolls}</text>
+<text class:disabled="{ !enabled }" x="{newX+10}" y="{xNew+60}">Cursed Chest: {cursedChestChance}%</text>

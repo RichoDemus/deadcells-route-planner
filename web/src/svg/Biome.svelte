@@ -23,7 +23,11 @@
 
     function click(event) {
         backlistedBiomes.update(biomes => {
-            biomes.add(id);
+            if (biomes.has(id)) {
+                biomes.delete(id);
+            } else {
+                biomes.add(id);
+            }
             return biomes;
         });
     }

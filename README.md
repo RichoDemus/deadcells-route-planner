@@ -1,4 +1,5 @@
 # Deadcells Route
+Currently deployed at [richodemus.github.io/deadcells-route-planner](https://richodemus.github.io/deadcells-route-planner/)
 
 ## run locally
 ```

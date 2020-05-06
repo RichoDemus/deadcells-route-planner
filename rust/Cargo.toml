@@ -9,10 +9,13 @@ crate-type = ["cdylib"]
 
 [profile.release]
 lto = true
+opt-level = 'z'
+#panic = 'abort'
+#codegen-units = 1
 
 [features]
 # If you uncomment this line, it will enable `wee_alloc`:
-#default = ["wee_alloc"]
+default = ["wee_alloc"]
 #default = ["console_error_panic_hook"]
 #default = ["wee_alloc", "console_error_panic_hook"]
 

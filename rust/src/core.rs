@@ -13,6 +13,7 @@ pub fn get_biomes() -> Result<Vec<Biome>, String> {
 
 pub(crate) fn get_biomes_and_paths(
     blacklist: Vec<Id>,
+    boss_cells: u8,
     biomes: Option<Vec<Biome>>,
 ) -> Result<(Vec<Vec<Biome>>, Vec<Path>), String> {
     let biomes: Vec<Biome> = biomes.unwrap_or_else(|| {
@@ -592,7 +593,7 @@ mod tests {
             (Id::Morass, 4, 1, vec![]).into(),
         ];
 
-        let (biomes, paths) = get_biomes_and_paths(vec![], Some(input)).unwrap();
+        let (biomes, paths) = get_biomes_and_paths(vec![], 0,Some(input)).unwrap();
 
         assert_eq!(
             biomes,
@@ -680,7 +681,7 @@ mod tests {
             (Id::Morass, 4, 1, vec![]).into(),
         ];
 
-        let (biomes, paths) = get_biomes_and_paths(vec![Id::Prisondepths], Some(input)).unwrap();
+        let (biomes, paths) = get_biomes_and_paths(vec![Id::Prisondepths], 0,Some(input)).unwrap();
 
         assert_eq!(
             biomes,
@@ -766,7 +767,7 @@ mod tests {
             (Id::Stilt, 1, 1, vec![]).into(),
         ];
 
-        let (biomes, paths) = get_biomes_and_paths(vec![Id::Nest], Some(input)).unwrap();
+        let (biomes, paths) = get_biomes_and_paths(vec![Id::Nest], 0, Some(input)).unwrap();
 
         assert_eq!(
             biomes,

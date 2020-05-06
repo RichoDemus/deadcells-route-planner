@@ -2,6 +2,7 @@
     // import {onMount} from "svelte";
     // import {get_biomes} from "./call_wasm";
     import Map from "./svg/Map.svelte";
+    import BossCellsSelector from "./BossCellsSelector.svelte";
     //
     // let biomes = "";
     // let obj = null;
@@ -18,6 +19,7 @@
 
 <div>
     <h1>Dead Cells Route Planner</h1>
+    <BossCellsSelector/>
     <Map/>
 
 

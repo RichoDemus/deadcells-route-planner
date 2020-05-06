@@ -4,7 +4,7 @@
     import {getBiomes} from "../callWasm";
     import StraightArrow from "./StraightArrow.svelte";
     import SidestepArrow from "./SidestepArrow.svelte";
-    import {backlistedBiomes} from "../stores";
+    import {backlistedBiomes, bossCells} from "../stores";
 
     let biomes = [];
     let paths = [];
@@ -29,13 +29,20 @@
         // alert("click")
     }
 
+    // todo these are fired on load
     const unsubscribe = backlistedBiomes.subscribe(value => {
         console.log("blacklist updated:", value);
-        updateBiomes(value);
+        updateBiomes(value, $bossCells);
     });
 
-    async function updateBiomes(blacklist) {
-        biomes = await getBiomes(Array.from(blacklist));
+    const unsubscribe2 = bossCells.subscribe(value => {
+        console.log("bossCells updated:", value);
+        updateBiomes($backlistedBiomes, value);
+    });
+
+    async function updateBiomes(blacklist, bossCells) {
+        console.log("boss cells:", bossCells)
+        biomes = await getBiomes(Array.from(blacklist), bossCells);
         // console.log("data from rust: ", biomes);
         paths = biomes.get("paths");
         biomes.delete("paths");

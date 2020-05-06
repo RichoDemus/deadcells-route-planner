@@ -20,7 +20,7 @@ mod path;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen(js_name = getBiomes)]
-pub fn get_biomes(blacklist: Array) -> Result<Map, JsValue> {
+pub fn get_biomes(blacklist: Array, boss_cells:JsValue) -> Result<Map, JsValue> {
     #[cfg(feature = "console_error_panic_hook")]
     console_error_panic_hook::set_once();
 
@@ -32,8 +32,11 @@ pub fn get_biomes(blacklist: Array) -> Result<Map, JsValue> {
         })
         .collect();
 
+    let boss_cells:u8 = boss_cells.as_f64().expect("can't unwrap boss cells") as u8;
+    console::log_1(&JsValue::from(format!("lib:: boss cells: {}", boss_cells)));
+
     let (biomes, paths) =
-        core::get_biomes_and_paths(blacklist, None).map_err(|msg| JsValue::from(msg))?;
+        core::get_biomes_and_paths(blacklist, boss_cells, None).map_err(|msg| JsValue::from(msg))?;
 
     let map = Map::new();
     for (i, tier) in biomes.iter().enumerate() {

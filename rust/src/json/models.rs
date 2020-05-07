@@ -98,7 +98,7 @@ pub struct ScrollFragments {
 }
 
 impl ScrollFragments {
-    pub fn get_fragments(&self, boss_cells: &BossCells) -> u8 {
+    pub fn get_fragments(&self, boss_cells: u8) -> u8 {
         let zero = self.zero;
         let one = self.one.or(zero);
         let two = self.two.or(one);
@@ -107,24 +107,15 @@ impl ScrollFragments {
         let five = self.five.or(four);
 
         match boss_cells {
-            BossCells::Zero => zero.unwrap_or(0),
-            BossCells::One => one.unwrap_or(0),
-            BossCells::Two => two.unwrap_or(0),
-            BossCells::Three => three.unwrap_or(0),
-            BossCells::Four => four.unwrap_or(0),
-            BossCells::Five => five.unwrap_or(0),
+            0 => zero.unwrap_or(0),
+            1 => one.unwrap_or(0),
+            2 => two.unwrap_or(0),
+            3 => three.unwrap_or(0),
+            4 => four.unwrap_or(0),
+            5 => five.unwrap_or(0),
+            _ => panic!(format!("Unexpected boss cells: {}", boss_cells)),
         }
     }
-}
-
-#[derive(Clone)]
-pub enum BossCells {
-    Zero,
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
 }
 
 #[serde(deny_unknown_fields)]
@@ -135,11 +126,22 @@ pub struct Exit {
     pub power_scrolls: Option<u8>,
 }
 
+// todo remove?
 impl From<Id> for Exit {
     fn from(destination: Id) -> Self {
         Exit {
             destination,
             boss_cell_requirement: None,
+            power_scrolls: None,
+        }
+    }
+}
+
+impl From<(Id, u8)> for Exit {
+    fn from((destination, boss_cell_requirement): (Id, u8)) -> Self {
+        Exit {
+            destination,
+            boss_cell_requirement: Some(boss_cell_requirement),
             power_scrolls: None,
         }
     }

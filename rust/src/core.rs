@@ -22,7 +22,7 @@ pub(crate) fn get_biomes_and_paths(
         b.clone()
     });
 
-    let (paths, reachable_biomes) = path::get_paths(&blacklist);
+    let (paths, reachable_biomes) = path::get_paths(&blacklist, boss_cells);
 
     let biomes = filter_reachable_biomes(biomes, &reachable_biomes);
     let biomes = order_biomes_by_tier(biomes)?;
@@ -108,14 +108,14 @@ fn order_biomes_by_tier(biomes: Vec<Biome>) -> Result<Vec<Vec<Biome>>, String> {
 
 pub fn get_path_with_most_scrolls<'b>(
     paths: &'b Vec<Vec<&'b Biome>>,
-    boss_cells: BossCells,
+    boss_cells: u8,
     include_dual_scrolls: bool,
 ) -> (u8, &'b Vec<&'b Biome>) {
     let mut paths_with_scrolls: Vec<(u8, &Vec<&Biome>)> = paths
         .iter()
         .map(|path| {
             (
-                calculate_scrolls(path, &boss_cells, include_dual_scrolls),
+                calculate_scrolls(path, boss_cells, include_dual_scrolls),
                 path,
             )
         })
@@ -127,7 +127,7 @@ pub fn get_path_with_most_scrolls<'b>(
     paths_with_scrolls.swap_remove(0)
 }
 
-fn calculate_scrolls(path: &Vec<&Biome>, boss_cells: &BossCells, include_dual_scrolls: bool) -> u8 {
+fn calculate_scrolls(path: &Vec<&Biome>, boss_cells: u8, include_dual_scrolls: bool) -> u8 {
     let (power_scrolls, dual_scrolls, fragments, cursed_chest_probabilities) =
         sum_collectibles_for_path(path, boss_cells);
 
@@ -142,14 +142,14 @@ fn calculate_scrolls(path: &Vec<&Biome>, boss_cells: &BossCells, include_dual_sc
     }
 }
 
-fn sum_collectibles_for_path(path: &Vec<&Biome>, boss_cells: &BossCells) -> (u8, u8, u8, u16) {
+fn sum_collectibles_for_path(path: &Vec<&Biome>, boss_cells: u8) -> (u8, u8, u8, u16) {
     path.iter().fold(
         (0, 0, 0, 0),
         |(power_scrolls, dual_scrolls, fragments, cursed_chest_probabilites), biome| {
             (
                 power_scrolls + biome.power_scrolls,
                 dual_scrolls + biome.dual_power_scrolls,
-                fragments + biome.scroll_fragments.get_fragments(&boss_cells),
+                fragments + biome.scroll_fragments.get_fragments(boss_cells),
                 cursed_chest_probabilites + biome.cursed_chest_chance as u16,
             )
         },
@@ -330,9 +330,13 @@ mod tests {
             (Id::Throne, vec![]).into(),
         ];
 
-        let paths = path::find_paths(&input);
+        let paths = path::find_paths(&input, None);
         assert!(paths.is_ok());
         let paths = paths.unwrap();
+        let paths: Vec<Vec<&Biome>> = paths
+            .into_iter()
+            .map(|p| p.path.into_iter().collect())
+            .collect();
 
         let paths_string: Vec<Vec<&Id>> =
             paths.into_iter().map(|path| path_to_ids(&path)).collect();
@@ -350,16 +354,19 @@ mod tests {
     #[test]
     fn parse_paths_for_actual_data() {
         let biomes = get_biomes().unwrap();
-        let paths = path::find_paths(&biomes);
+        let paths = path::find_paths(&biomes, None);
         // let paths = find_paths(&biomes, "Prisoners' Quarters", "Throne Room");
         assert!(paths.is_ok());
         let paths = paths.unwrap();
-
+        let paths: Vec<Vec<&Biome>> = paths
+            .into_iter()
+            .map(|p| p.path.into_iter().collect())
+            .collect();
         // assert_eq!(185, paths.len());
 
         let mut result: Vec<((u8, u8, u8, u16), Vec<&String>)> = paths
             .into_iter()
-            .map(|path| (sum_collectibles_for_path(&path, &BossCells::Five), path))
+            .map(|path| (sum_collectibles_for_path(&path, 5), path))
             .map(|(collectibles, path)| (calculate_collectibles_from_fragments(collectibles), path))
             .map(|(collectibles, path)| {
                 (
@@ -385,11 +392,12 @@ mod tests {
     #[test]
     fn should_find_path_with_most_scrolls() {
         let biomes = get_biomes().unwrap();
-        let paths = path::find_paths(&biomes);
+        let paths = path::find_paths(&biomes, None);
         assert!(paths.is_ok());
         let paths = paths.unwrap();
+        let paths = paths.into_iter().map(|p| p.path).collect();
 
-        let (scrolls, _path) = get_path_with_most_scrolls(&paths, BossCells::Five, false);
+        let (scrolls, _path) = get_path_with_most_scrolls(&paths, 5, false);
 
         assert_eq!(scrolls, 22, "Wrong amount of scrolls in best route");
 
@@ -447,235 +455,235 @@ mod tests {
         );
     }
 
-    // #[test]
-    fn test_get_biomes_and_paths() {
-        let input: Vec<Biome> = vec![
-            (Id::Prisonquart, 1, 1, vec![Id::Arboretum]).into(),
-            (Id::Arboretum, 2, 1, vec![Id::Prisondepths, Id::Morass]).into(),
-            (Id::Promenade, 2, 2, vec![]).into(),
-            (Id::Prisondepths, 3, 1, vec![Id::Morass]).into(),
-            (Id::Morass, 4, 1, vec![]).into(),
-        ];
+    // // #[test]
+    // fn test_get_biomes_and_paths() {
+    //     let input: Vec<Biome> = vec![
+    //         (Id::Prisonquart, 1, 1, vec![Id::Arboretum]).into(),
+    //         (Id::Arboretum, 2, 1, vec![Id::Prisondepths, Id::Morass]).into(),
+    //         (Id::Promenade, 2, 2, vec![]).into(),
+    //         (Id::Prisondepths, 3, 1, vec![Id::Morass]).into(),
+    //         (Id::Morass, 4, 1, vec![]).into(),
+    //     ];
+    //
+    //     let (biomes, paths) = get_biomes_and_paths(vec![], 0, Some(input)).unwrap();
+    //
+    //     assert_eq!(
+    //         biomes,
+    //         vec![
+    //             vec![(Id::Prisonquart, 1, 1, vec![Id::Arboretum]).into()],
+    //             vec![
+    //                 (Id::Arboretum, 2, 1, vec![Id::Prisondepths, Id::Morass]).into(),
+    //                 (Id::Promenade, 2, 2, vec![]).into()
+    //             ],
+    //             vec![(Id::Prisondepths, 3, 1, vec![Id::Morass]).into()],
+    //             vec![(Id::Morass, 4, 1, vec![]).into()],
+    //         ]
+    //     );
+    //
+    //     assert_eq!(
+    //         paths,
+    //         vec![
+    //             RenderablePath {
+    //                 id: format!(
+    //                     "{}-{}",
+    //                     Id::Prisonquart.to_string().to_lowercase(),
+    //                     Id::Arboretum.to_string().to_lowercase()
+    //                 ),
+    //                 start_column: 1,
+    //                 start_columns: 1,
+    //                 end_column: 1,
+    //                 end_columns: 2,
+    //                 row: 1,
+    //                 length: 1,
+    //                 enabled: true,
+    //             },
+    //             RenderablePath {
+    //                 id: format!(
+    //                     "{}-{}",
+    //                     Id::Arboretum.to_string().to_lowercase(),
+    //                     Id::Prisondepths.to_string().to_lowercase()
+    //                 ),
+    //                 start_column: 1,
+    //                 start_columns: 2,
+    //                 end_column: 1,
+    //                 end_columns: 1,
+    //                 row: 2,
+    //                 length: 1,
+    //                 enabled: true,
+    //             },
+    //             RenderablePath {
+    //                 id: format!(
+    //                     "{}-{}",
+    //                     Id::Arboretum.to_string().to_lowercase(),
+    //                     Id::Morass.to_string().to_lowercase()
+    //                 ),
+    //                 start_column: 1,
+    //                 start_columns: 2,
+    //                 end_column: 1,
+    //                 end_columns: 1,
+    //                 row: 2,
+    //                 length: 2,
+    //                 enabled: true,
+    //             },
+    //             RenderablePath {
+    //                 id: format!(
+    //                     "{}-{}",
+    //                     Id::Prisondepths.to_string().to_lowercase(),
+    //                     Id::Morass.to_string().to_lowercase()
+    //                 ),
+    //                 start_column: 1,
+    //                 start_columns: 1,
+    //                 end_column: 1,
+    //                 end_columns: 1,
+    //                 row: 3,
+    //                 length: 1,
+    //                 enabled: true,
+    //             },
+    //         ]
+    //     );
+    // }
 
-        let (biomes, paths) = get_biomes_and_paths(vec![], 0, Some(input)).unwrap();
+    // // #[test]
+    // fn test_get_biomes_and_paths_one_blacklisted() {
+    //     let input: Vec<Biome> = vec![
+    //         (Id::Prisonquart, 1, 1, vec![Id::Arboretum]).into(),
+    //         (Id::Arboretum, 2, 1, vec![Id::Prisondepths, Id::Morass]).into(),
+    //         (Id::Promenade, 2, 2, vec![]).into(),
+    //         (Id::Prisondepths, 3, 1, vec![Id::Morass]).into(),
+    //         (Id::Morass, 4, 1, vec![]).into(),
+    //     ];
+    //
+    //     let (biomes, paths) = get_biomes_and_paths(vec![Id::Prisondepths], 0, Some(input)).unwrap();
+    //
+    //     assert_eq!(
+    //         biomes,
+    //         vec![
+    //             vec![(Id::Prisonquart, 1, 1, vec![Id::Arboretum]).into()],
+    //             vec![
+    //                 (Id::Arboretum, 2, 1, vec![Id::Prisondepths, Id::Morass]).into(),
+    //                 (Id::Promenade, 2, 2, vec![]).into()
+    //             ],
+    //             vec![(Id::Prisondepths, 3, 1, vec![Id::Morass], false).into()],
+    //             vec![(Id::Morass, 4, 1, vec![]).into()],
+    //         ]
+    //     );
+    //
+    //     assert_eq!(
+    //         paths,
+    //         vec![
+    //             RenderablePath {
+    //                 id: format!(
+    //                     "{}-{}",
+    //                     Id::Prisonquart.to_string().to_lowercase(),
+    //                     Id::Arboretum.to_string().to_lowercase()
+    //                 ),
+    //                 start_column: 1,
+    //                 start_columns: 1,
+    //                 end_column: 1,
+    //                 end_columns: 2,
+    //                 row: 1,
+    //                 length: 1,
+    //                 enabled: true,
+    //             },
+    //             RenderablePath {
+    //                 id: format!(
+    //                     "{}-{}",
+    //                     Id::Arboretum.to_string().to_lowercase(),
+    //                     Id::Prisondepths.to_string().to_lowercase()
+    //                 ),
+    //                 start_column: 1,
+    //                 start_columns: 2,
+    //                 end_column: 1,
+    //                 end_columns: 1,
+    //                 row: 2,
+    //                 length: 1,
+    //                 enabled: false,
+    //             },
+    //             RenderablePath {
+    //                 id: format!(
+    //                     "{}-{}",
+    //                     Id::Arboretum.to_string().to_lowercase(),
+    //                     Id::Morass.to_string().to_lowercase()
+    //                 ),
+    //                 start_column: 1,
+    //                 start_columns: 2,
+    //                 end_column: 1,
+    //                 end_columns: 1,
+    //                 row: 2,
+    //                 length: 2,
+    //                 enabled: true,
+    //             },
+    //             RenderablePath {
+    //                 id: format!(
+    //                     "{}-{}",
+    //                     Id::Prisondepths.to_string().to_lowercase(),
+    //                     Id::Morass.to_string().to_lowercase()
+    //                 ),
+    //                 start_column: 1,
+    //                 start_columns: 1,
+    //                 end_column: 1,
+    //                 end_columns: 1,
+    //                 row: 3,
+    //                 length: 1,
+    //                 enabled: false,
+    //             },
+    //         ]
+    //     );
+    // }
 
-        assert_eq!(
-            biomes,
-            vec![
-                vec![(Id::Prisonquart, 1, 1, vec![Id::Arboretum]).into()],
-                vec![
-                    (Id::Arboretum, 2, 1, vec![Id::Prisondepths, Id::Morass]).into(),
-                    (Id::Promenade, 2, 2, vec![]).into()
-                ],
-                vec![(Id::Prisondepths, 3, 1, vec![Id::Morass]).into()],
-                vec![(Id::Morass, 4, 1, vec![]).into()],
-            ]
-        );
-
-        assert_eq!(
-            paths,
-            vec![
-                RenderablePath {
-                    id: format!(
-                        "{}-{}",
-                        Id::Prisonquart.to_string().to_lowercase(),
-                        Id::Arboretum.to_string().to_lowercase()
-                    ),
-                    start_column: 1,
-                    start_columns: 1,
-                    end_column: 1,
-                    end_columns: 2,
-                    row: 1,
-                    length: 1,
-                    enabled: true,
-                },
-                RenderablePath {
-                    id: format!(
-                        "{}-{}",
-                        Id::Arboretum.to_string().to_lowercase(),
-                        Id::Prisondepths.to_string().to_lowercase()
-                    ),
-                    start_column: 1,
-                    start_columns: 2,
-                    end_column: 1,
-                    end_columns: 1,
-                    row: 2,
-                    length: 1,
-                    enabled: true,
-                },
-                RenderablePath {
-                    id: format!(
-                        "{}-{}",
-                        Id::Arboretum.to_string().to_lowercase(),
-                        Id::Morass.to_string().to_lowercase()
-                    ),
-                    start_column: 1,
-                    start_columns: 2,
-                    end_column: 1,
-                    end_columns: 1,
-                    row: 2,
-                    length: 2,
-                    enabled: true,
-                },
-                RenderablePath {
-                    id: format!(
-                        "{}-{}",
-                        Id::Prisondepths.to_string().to_lowercase(),
-                        Id::Morass.to_string().to_lowercase()
-                    ),
-                    start_column: 1,
-                    start_columns: 1,
-                    end_column: 1,
-                    end_columns: 1,
-                    row: 3,
-                    length: 1,
-                    enabled: true,
-                },
-            ]
-        );
-    }
-
-    // #[test]
-    fn test_get_biomes_and_paths_one_blacklisted() {
-        let input: Vec<Biome> = vec![
-            (Id::Prisonquart, 1, 1, vec![Id::Arboretum]).into(),
-            (Id::Arboretum, 2, 1, vec![Id::Prisondepths, Id::Morass]).into(),
-            (Id::Promenade, 2, 2, vec![]).into(),
-            (Id::Prisondepths, 3, 1, vec![Id::Morass]).into(),
-            (Id::Morass, 4, 1, vec![]).into(),
-        ];
-
-        let (biomes, paths) = get_biomes_and_paths(vec![Id::Prisondepths], 0, Some(input)).unwrap();
-
-        assert_eq!(
-            biomes,
-            vec![
-                vec![(Id::Prisonquart, 1, 1, vec![Id::Arboretum]).into()],
-                vec![
-                    (Id::Arboretum, 2, 1, vec![Id::Prisondepths, Id::Morass]).into(),
-                    (Id::Promenade, 2, 2, vec![]).into()
-                ],
-                vec![(Id::Prisondepths, 3, 1, vec![Id::Morass], false).into()],
-                vec![(Id::Morass, 4, 1, vec![]).into()],
-            ]
-        );
-
-        assert_eq!(
-            paths,
-            vec![
-                RenderablePath {
-                    id: format!(
-                        "{}-{}",
-                        Id::Prisonquart.to_string().to_lowercase(),
-                        Id::Arboretum.to_string().to_lowercase()
-                    ),
-                    start_column: 1,
-                    start_columns: 1,
-                    end_column: 1,
-                    end_columns: 2,
-                    row: 1,
-                    length: 1,
-                    enabled: true,
-                },
-                RenderablePath {
-                    id: format!(
-                        "{}-{}",
-                        Id::Arboretum.to_string().to_lowercase(),
-                        Id::Prisondepths.to_string().to_lowercase()
-                    ),
-                    start_column: 1,
-                    start_columns: 2,
-                    end_column: 1,
-                    end_columns: 1,
-                    row: 2,
-                    length: 1,
-                    enabled: false,
-                },
-                RenderablePath {
-                    id: format!(
-                        "{}-{}",
-                        Id::Arboretum.to_string().to_lowercase(),
-                        Id::Morass.to_string().to_lowercase()
-                    ),
-                    start_column: 1,
-                    start_columns: 2,
-                    end_column: 1,
-                    end_columns: 1,
-                    row: 2,
-                    length: 2,
-                    enabled: true,
-                },
-                RenderablePath {
-                    id: format!(
-                        "{}-{}",
-                        Id::Prisondepths.to_string().to_lowercase(),
-                        Id::Morass.to_string().to_lowercase()
-                    ),
-                    start_column: 1,
-                    start_columns: 1,
-                    end_column: 1,
-                    end_columns: 1,
-                    row: 3,
-                    length: 1,
-                    enabled: false,
-                },
-            ]
-        );
-    }
-
-    // #[test]
-    fn test_get_biomes_and_paths_disable_transitive_paths() {
-        let input: Vec<Biome> = vec![
-            (Id::Morass, 1, 1, vec![Id::Nest]).into(),
-            (Id::Nest, 1, 1, vec![Id::Stilt]).into(),
-            (Id::Stilt, 1, 1, vec![]).into(),
-        ];
-
-        let (biomes, paths) = get_biomes_and_paths(vec![Id::Nest], 0, Some(input)).unwrap();
-
-        assert_eq!(
-            biomes,
-            vec![
-                vec![(Id::Morass, 1, 1, vec![Id::Nest], false).into()],
-                vec![(Id::Nest, 1, 1, vec![Id::Stilt], false).into()],
-                vec![(Id::Stilt, 3, 1, vec![], false).into()],
-            ]
-        );
-
-        assert_eq!(
-            paths,
-            vec![
-                RenderablePath {
-                    id: format!(
-                        "{}-{}",
-                        Id::Morass.to_string().to_lowercase(),
-                        Id::Nest.to_string().to_lowercase()
-                    ),
-                    start_column: 1,
-                    start_columns: 1,
-                    end_column: 1,
-                    end_columns: 1,
-                    row: 1,
-                    length: 1,
-                    enabled: false,
-                },
-                RenderablePath {
-                    id: format!(
-                        "{}-{}",
-                        Id::Nest.to_string().to_lowercase(),
-                        Id::Stilt.to_string().to_lowercase()
-                    ),
-                    start_column: 1,
-                    start_columns: 1,
-                    end_column: 1,
-                    end_columns: 1,
-                    row: 1,
-                    length: 1,
-                    enabled: false,
-                },
-            ]
-        );
-    }
+    // // #[test]
+    // fn test_get_biomes_and_paths_disable_transitive_paths() {
+    //     let input: Vec<Biome> = vec![
+    //         (Id::Morass, 1, 1, vec![Id::Nest]).into(),
+    //         (Id::Nest, 1, 1, vec![Id::Stilt]).into(),
+    //         (Id::Stilt, 1, 1, vec![]).into(),
+    //     ];
+    //
+    //     let (biomes, paths) = get_biomes_and_paths(vec![Id::Nest], 0, Some(input)).unwrap();
+    //
+    //     assert_eq!(
+    //         biomes,
+    //         vec![
+    //             vec![(Id::Morass, 1, 1, vec![Id::Nest], false).into()],
+    //             vec![(Id::Nest, 1, 1, vec![Id::Stilt], false).into()],
+    //             vec![(Id::Stilt, 3, 1, vec![], false).into()],
+    //         ]
+    //     );
+    //
+    //     assert_eq!(
+    //         paths,
+    //         vec![
+    //             RenderablePath {
+    //                 id: format!(
+    //                     "{}-{}",
+    //                     Id::Morass.to_string().to_lowercase(),
+    //                     Id::Nest.to_string().to_lowercase()
+    //                 ),
+    //                 start_column: 1,
+    //                 start_columns: 1,
+    //                 end_column: 1,
+    //                 end_columns: 1,
+    //                 row: 1,
+    //                 length: 1,
+    //                 enabled: false,
+    //             },
+    //             RenderablePath {
+    //                 id: format!(
+    //                     "{}-{}",
+    //                     Id::Nest.to_string().to_lowercase(),
+    //                     Id::Stilt.to_string().to_lowercase()
+    //                 ),
+    //                 start_column: 1,
+    //                 start_columns: 1,
+    //                 end_column: 1,
+    //                 end_columns: 1,
+    //                 row: 1,
+    //                 length: 1,
+    //                 enabled: false,
+    //             },
+    //         ]
+    //     );
+    // }
 
     fn path_to_names<'b>(path: &Vec<&'b Biome>) -> Vec<&'b String> {
         path.iter().map(|biome| &biome.name).collect()

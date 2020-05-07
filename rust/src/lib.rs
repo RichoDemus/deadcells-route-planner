@@ -58,6 +58,10 @@ pub fn get_biomes(blacklist: Array, boss_cells: JsValue) -> Result<Map, JsValue>
     Ok(map)
 }
 
+pub fn log(msg: &str) {
+    console::log_1(&JsValue::from(msg));
+}
+
 #[cfg(all(test, target_arch = "wasm32"))]
 mod tests {
     use super::*;

@@ -1,17 +1,19 @@
 use crate::json::models::*;
 use crate::lazies;
 use serde::Serialize;
+use wasm_bindgen::__rt::std::process::exit;
 
-pub(crate) fn get_paths(blacklist: &Vec<Id>) -> (Vec<RenderablePath>, Vec<Id>) {
-    get_paths_from(&*lazies::BIOMES, &*lazies::RAW_PATHS, blacklist)
+pub(crate) fn get_paths(blacklist: &Vec<Id>, boss_cells: u8) -> (Vec<RenderablePath>, Vec<Id>) {
+    get_paths_from(&*lazies::BIOMES, &*lazies::RAW_PATHS, blacklist, boss_cells)
 }
 
 fn get_paths_from(
     all_biomes: &Vec<Biome>,
     paths: &Vec<ToggleablePath>,
     blacklist: &Vec<Id>,
+    boss_cells: u8,
 ) -> (Vec<RenderablePath>, Vec<Id>) {
-    let result = apply_blacklist(paths, blacklist);
+    let result = apply_blacklist_and_boss_cells(paths, blacklist, boss_cells);
     biomes_paths_to_paths(all_biomes, result)
 }
 
@@ -107,11 +109,18 @@ pub struct RenderablePath {
     pub enabled: bool,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ToggleablePath<'b> {
-    enabled: bool,
-    path: Vec<&'b Biome>,
-    minimum_boss_cells: BossCells,
+    pub enabled: bool,
+    pub path: Vec<&'b Biome>,
+    pub minimum_boss_cells: u8,
+}
+
+impl ToggleablePath<'_> {
+    fn update_minimum_boss_cells(&mut self, minimum_required_boss_cells: u8) {
+        self.minimum_boss_cells =
+            std::cmp::max(self.minimum_boss_cells, minimum_required_boss_cells);
+    }
 }
 
 pub(crate) fn get_all_paths() {}
@@ -124,7 +133,11 @@ fn biomes_paths_to_paths<'b>(
     let mut reachable_biomes: Vec<Id> = all_biomes.first().iter().map(|b| b.id.clone()).collect();
 
     for toggleable_path in biomes {
-        let ToggleablePath { enabled, path, minimum_boss_cells: _minimum_boss_cells } = toggleable_path;
+        let ToggleablePath {
+            enabled,
+            path,
+            minimum_boss_cells: _minimum_boss_cells,
+        } = toggleable_path;
         'inner: for (i, start_biome) in path.iter().enumerate() {
             let end_biome = match path.get(i + 1) {
                 Some(b) => b,
@@ -191,14 +204,27 @@ fn deduplicate_paths(mut paths: Vec<RenderablePath>) -> Vec<RenderablePath> {
     paths
 }
 
-fn apply_blacklist<'b>(
+fn apply_blacklist_and_boss_cells<'b>(
     paths: &Vec<ToggleablePath<'b>>,
     blacklist: &Vec<Id>,
+    boss_cells: u8,
 ) -> Vec<ToggleablePath<'b>> {
     // todo change enabled instead of creating new paths
     paths
         .into_iter()
         .map(|path| {
+            // {
+            //     let str_path = path.path.iter().map(|b| b.id.to_string()).collect::<Vec<String>>();
+            //     let str_path = str_path.join(",");
+            //     crate::log(format!("path:: checking path {:?} cells: {}, against boss cells {}", str_path, path.minimum_boss_cells, boss_cells).as_str());
+            // }
+            if path.minimum_boss_cells > boss_cells {
+                return ToggleablePath {
+                    enabled: false,
+                    path: path.path.clone(),
+                    minimum_boss_cells: path.minimum_boss_cells.clone(),
+                };
+            }
             for biome in path.path.iter() {
                 for blacklist_item in blacklist {
                     if &biome.id == blacklist_item {
@@ -219,16 +245,19 @@ fn apply_blacklist<'b>(
         .collect()
 }
 
-pub(crate) fn find_paths<'b>(biomes: &'b Vec<Biome>) -> Result<Vec<ToggleablePath>, String> {
+pub(crate) fn find_paths<'b>(
+    biomes: &'b Vec<Biome>,
+    id: Option<Id>,
+) -> Result<Vec<ToggleablePath>, String> {
     let start = biomes.first().unwrap();
     let start = ToggleablePath {
         enabled: true,
         path: vec![start],
-        minimum_boss_cells: BossCells::Zero,
+        minimum_boss_cells: 0,
     };
-    let end = biomes.last().unwrap();
+    let end = id.unwrap_or_else(|| biomes.last().unwrap().id.clone());
 
-    let paths = find_path_rec(biomes, start, &end.id);
+    let paths = find_path_rec(biomes, start, &end);
 
     Ok(paths)
 }
@@ -246,25 +275,55 @@ fn find_path_rec<'b>(
         return vec![current_path];
     }
 
-    let exit_ids: Vec<&Id> = last_biome_in_path
+    let exit_ids: Vec<(&Id, u8)> = last_biome_in_path
         .exits
         .iter()
-        .map(|exit| &exit.destination)
+        .map(|exit| {
+            let destination_id: &Id = &exit.destination;
+            let temp = exit.boss_cell_requirement.clone();
+            let boss_cell_requirement: u8 = temp.unwrap_or(0);
+            (destination_id, boss_cell_requirement)
+        })
         .collect();
-    let next_biomes: Vec<&Biome> = all_biomes
+
+    let next_biomes: Vec<(&Biome, u8)> = all_biomes
         .iter()
-        .filter(|biome| exit_ids.contains(&&biome.id))
+        .filter_map(|biome| {
+            let (contains, required_boss_cells) =
+                contains_and_required_boss_cells(&exit_ids, &biome.id);
+            if contains {
+                Some((biome, required_boss_cells))
+            } else {
+                None
+            }
+        })
         .collect();
 
     let mut paths = vec![];
-    for next_biome in next_biomes {
+    for (next_biome, required_boss_cells) in next_biomes {
         let mut next_path = current_path.clone();
+        next_path.update_minimum_boss_cells(required_boss_cells);
+        // {
+        //     let from = next_path.path.last().unwrap();
+        //     let from = &from.id;
+        //     crate::log(format!("Travelling from {:?} to {:?} requires {}", from, next_biome.id, required_boss_cells).as_str());
+        // }
         next_path.path.push(next_biome);
         let mut new_paths = find_path_rec(all_biomes, next_path, end);
         paths.append(&mut new_paths)
     }
 
     paths
+}
+
+// todo maybe create and return enum
+fn contains_and_required_boss_cells(exits: &Vec<(&Id, u8)>, expected_id: &Id) -> (bool, u8) {
+    for (id, boss_cells) in exits {
+        if &expected_id == id {
+            return (true, *boss_cells);
+        }
+    }
+    return (false, 0);
 }
 
 // fn calculate_all_paths_simple(biomes: &Vec<Biome>) -> Vec<Vec<SimplePath>> {
@@ -383,20 +442,34 @@ mod tests {
                 Id::Prisonquart,
                 1,
                 1,
-                vec![Id::Arboretum, Id::Promenade, Id::Toxicsewers],
+                vec![
+                    (Id::Arboretum, 0),
+                    (Id::Promenade, 0),
+                    (Id::Toxicsewers, 0),
+                    (Id::Ossuary, 5),
+                ],
             )
                 .into(),
-            (Id::Arboretum, 2, 1, vec![Id::Prisondepths]).into(),
-            (Id::Promenade, 2, 2, vec![Id::Ossuary, Id::Corruptedprison]).into(),
+            (Id::Arboretum, 2, 1, vec![(Id::Prisondepths, 0)]).into(),
+            (
+                Id::Promenade,
+                2,
+                2,
+                vec![(Id::Ossuary, 0), (Id::Corruptedprison, 0)],
+            )
+                .into(),
             (Id::Toxicsewers, 2, 3, vec![]).into(),
-            (Id::Prisondepths, 3, 1, vec![Id::Ossuary]).into(),
-            (Id::Corruptedprison, 3, 2, vec![Id::Ossuary]).into(),
+            (Id::Prisondepths, 3, 1, vec![(Id::Ossuary, 0)]).into(),
+            (Id::Corruptedprison, 3, 2, vec![(Id::Ossuary, 0)]).into(),
             (Id::Ossuary, 4, 1, vec![]).into(),
         ];
 
-        let result = find_paths(&biomes)?;
+        let result = find_paths(&biomes, None)?;
+        // result
+        //     .iter()
+        //     .for_each(|path| println!("path: {:?} - {:?} required cells: {:?}", path_to_ids(&path.path), path.enabled, path.minimum_boss_cells));
         // todo check reachable biomes
-        let (result, _) = get_paths_from(&biomes, &result, &vec![Id::Arboretum]);
+        let (result, _) = get_paths_from(&biomes, &result, &vec![Id::Arboretum], 4);
 
         // let result = find_paths(&biomes)?;
         //
@@ -484,14 +557,24 @@ mod tests {
                     length: 2,
                     enabled: true,
                 },
+                RenderablePath {
+                    id: "prisonquart-ossuary".to_string(),
+                    start_column: 1,
+                    start_columns: 1,
+                    end_column: 1,
+                    end_columns: 1,
+                    row: 1,
+                    length: 3,
+                    enabled: false
+                },
             ]
         );
 
         Ok(())
     }
 
-    impl From<(Id, usize, usize, Vec<Id>)> for Biome {
-        fn from((id, row, column, exits): (Id, usize, usize, Vec<Id>)) -> Self {
+    impl From<(Id, usize, usize, Vec<(Id, u8)>)> for Biome {
+        fn from((id, row, column, exits): (Id, usize, usize, Vec<(Id, u8)>)) -> Self {
             let name = id.to_string();
             let exits = exits.into_iter().map(|exit| Exit::from(exit)).collect();
             Biome {

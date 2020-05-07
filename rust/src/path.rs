@@ -111,6 +111,7 @@ pub struct RenderablePath {
 pub struct ToggleablePath<'b> {
     enabled: bool,
     path: Vec<&'b Biome>,
+    minimum_boss_cells: BossCells,
 }
 
 pub(crate) fn get_all_paths() {}
@@ -123,7 +124,7 @@ fn biomes_paths_to_paths<'b>(
     let mut reachable_biomes: Vec<Id> = all_biomes.first().iter().map(|b| b.id.clone()).collect();
 
     for toggleable_path in biomes {
-        let ToggleablePath { enabled, path } = toggleable_path;
+        let ToggleablePath { enabled, path, minimum_boss_cells: _minimum_boss_cells } = toggleable_path;
         'inner: for (i, start_biome) in path.iter().enumerate() {
             let end_biome = match path.get(i + 1) {
                 Some(b) => b,
@@ -204,6 +205,7 @@ fn apply_blacklist<'b>(
                         return ToggleablePath {
                             enabled: false,
                             path: path.path.clone(),
+                            minimum_boss_cells: path.minimum_boss_cells.clone(),
                         };
                     }
                 }
@@ -211,6 +213,7 @@ fn apply_blacklist<'b>(
             ToggleablePath {
                 enabled: true,
                 path: path.path.clone(),
+                minimum_boss_cells: path.minimum_boss_cells.clone(),
             }
         })
         .collect()
@@ -221,6 +224,7 @@ pub(crate) fn find_paths<'b>(biomes: &'b Vec<Biome>) -> Result<Vec<ToggleablePat
     let start = ToggleablePath {
         enabled: true,
         path: vec![start],
+        minimum_boss_cells: BossCells::Zero,
     };
     let end = biomes.last().unwrap();
 

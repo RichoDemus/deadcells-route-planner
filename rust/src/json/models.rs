@@ -83,6 +83,8 @@ impl fmt::Display for Id {
 #[serde(deny_unknown_fields)]
 #[derive(Serialize, Deserialize, Debug, Default, Eq, PartialEq, Clone)]
 pub struct ScrollFragments {
+    #[serde(alias = "0")]
+    pub zero: Option<u8>,
     #[serde(alias = "1")]
     pub one: Option<u8>,
     #[serde(alias = "2")]
@@ -97,13 +99,15 @@ pub struct ScrollFragments {
 
 impl ScrollFragments {
     pub fn get_fragments(&self, boss_cells: &BossCells) -> u8 {
-        let one = self.one;
+        let zero = self.zero;
+        let one = self.one.or(zero);
         let two = self.two.or(one);
         let three = self.three.or(two);
         let four = self.four.or(three);
         let five = self.five.or(four);
 
         match boss_cells {
+            BossCells::Zero => zero.unwrap_or(0),
             BossCells::One => one.unwrap_or(0),
             BossCells::Two => two.unwrap_or(0),
             BossCells::Three => three.unwrap_or(0),
@@ -113,7 +117,9 @@ impl ScrollFragments {
     }
 }
 
+#[derive(Clone)]
 pub enum BossCells {
+    Zero,
     One,
     Two,
     Three,

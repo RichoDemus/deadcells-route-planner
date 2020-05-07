@@ -4,7 +4,7 @@ use crate::json::json;
 use crate::json::models::*;
 use crate::lazies;
 use crate::path;
-use crate::path::Path;
+use crate::path::RenderablePath;
 use std::fmt;
 use std::fmt::Debug;
 
@@ -16,7 +16,7 @@ pub(crate) fn get_biomes_and_paths(
     blacklist: Vec<Id>,
     boss_cells: u8,
     biomes: Option<Vec<Biome>>,
-) -> Result<(Vec<Vec<Biome>>, Vec<Path>), String> {
+) -> Result<(Vec<Vec<Biome>>, Vec<RenderablePath>), String> {
     let biomes: Vec<Biome> = biomes.unwrap_or_else(|| {
         let b: &Vec<Biome> = &*lazies::BIOMES;
         b.clone()
@@ -187,7 +187,7 @@ fn calculate_collectibles_from_cursed_chests(
 }
 
 // todo investigate and maybe do this in a  const fn :o
-fn calculate_paths_old(biomes: &Vec<Biome>, blacklist: &Vec<Id>) -> Vec<Path> {
+fn calculate_paths_old(biomes: &Vec<Biome>, blacklist: &Vec<Id>) -> Vec<RenderablePath> {
     let mut result = vec![];
 
     fn calc_columns(biomes: &Vec<Biome>, row: usize) -> usize {
@@ -226,7 +226,7 @@ fn calculate_paths_old(biomes: &Vec<Biome>, blacklist: &Vec<Id>) -> Vec<Path> {
             let length = calc_length(biome, end_biome);
 
             // todo fix tolowercase hack
-            result.push(Path {
+            result.push(RenderablePath {
                 id: format!(
                     "{}-{}",
                     start_id.to_string().to_lowercase(),
@@ -259,7 +259,7 @@ fn filter_reachable_biomes(biomes: Vec<Biome>, whitelist: &Vec<Id>) -> Vec<Biome
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::path::Path;
+    use crate::path::RenderablePath;
 
     #[test]
     fn should_gracefully_fail() {
@@ -475,7 +475,7 @@ mod tests {
         assert_eq!(
             paths,
             vec![
-                Path {
+                RenderablePath {
                     id: format!(
                         "{}-{}",
                         Id::Prisonquart.to_string().to_lowercase(),
@@ -489,7 +489,7 @@ mod tests {
                     length: 1,
                     enabled: true,
                 },
-                Path {
+                RenderablePath {
                     id: format!(
                         "{}-{}",
                         Id::Arboretum.to_string().to_lowercase(),
@@ -503,7 +503,7 @@ mod tests {
                     length: 1,
                     enabled: true,
                 },
-                Path {
+                RenderablePath {
                     id: format!(
                         "{}-{}",
                         Id::Arboretum.to_string().to_lowercase(),
@@ -517,7 +517,7 @@ mod tests {
                     length: 2,
                     enabled: true,
                 },
-                Path {
+                RenderablePath {
                     id: format!(
                         "{}-{}",
                         Id::Prisondepths.to_string().to_lowercase(),
@@ -563,7 +563,7 @@ mod tests {
         assert_eq!(
             paths,
             vec![
-                Path {
+                RenderablePath {
                     id: format!(
                         "{}-{}",
                         Id::Prisonquart.to_string().to_lowercase(),
@@ -577,7 +577,7 @@ mod tests {
                     length: 1,
                     enabled: true,
                 },
-                Path {
+                RenderablePath {
                     id: format!(
                         "{}-{}",
                         Id::Arboretum.to_string().to_lowercase(),
@@ -591,7 +591,7 @@ mod tests {
                     length: 1,
                     enabled: false,
                 },
-                Path {
+                RenderablePath {
                     id: format!(
                         "{}-{}",
                         Id::Arboretum.to_string().to_lowercase(),
@@ -605,7 +605,7 @@ mod tests {
                     length: 2,
                     enabled: true,
                 },
-                Path {
+                RenderablePath {
                     id: format!(
                         "{}-{}",
                         Id::Prisondepths.to_string().to_lowercase(),
@@ -645,7 +645,7 @@ mod tests {
         assert_eq!(
             paths,
             vec![
-                Path {
+                RenderablePath {
                     id: format!(
                         "{}-{}",
                         Id::Morass.to_string().to_lowercase(),
@@ -659,7 +659,7 @@ mod tests {
                     length: 1,
                     enabled: false,
                 },
-                Path {
+                RenderablePath {
                     id: format!(
                         "{}-{}",
                         Id::Nest.to_string().to_lowercase(),

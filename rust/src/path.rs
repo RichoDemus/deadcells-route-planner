@@ -2,21 +2,21 @@ use crate::json::models::*;
 use crate::lazies;
 use serde::Serialize;
 
-pub(crate) fn get_paths(blacklist: &Vec<Id>) -> (Vec<Path>, Vec<Id>) {
+pub(crate) fn get_paths(blacklist: &Vec<Id>) -> (Vec<RenderablePath>, Vec<Id>) {
     get_paths_from(&*lazies::BIOMES, &*lazies::RAW_PATHS, blacklist)
 }
 
 fn get_paths_from(
     all_biomes: &Vec<Biome>,
-    paths: &Vec<Vec<&Biome>>,
+    paths: &Vec<ToggleablePath>,
     blacklist: &Vec<Id>,
-) -> (Vec<Path>, Vec<Id>) {
+) -> (Vec<RenderablePath>, Vec<Id>) {
     let result = apply_blacklist(paths, blacklist);
     biomes_paths_to_paths(all_biomes, result)
 }
 
 // todo investigate and maybe do this in a  const fn :o
-fn calculate_paths(biomes: &Vec<Biome>, blacklist: &Vec<Id>) -> Vec<Path> {
+fn calculate_paths(biomes: &Vec<Biome>, blacklist: &Vec<Id>) -> Vec<RenderablePath> {
     let mut result = vec![];
 
     let mut biomes_to_process = vec![biomes.first().expect("calc_paths biomes is empty")];
@@ -92,7 +92,7 @@ fn enabled(start_id: &Id, end_id: &Id, blacklist: &Vec<Id>) -> bool {
 }
 
 #[derive(Serialize, Debug, Eq, PartialEq, Clone, Ord, PartialOrd)]
-pub struct Path {
+pub struct RenderablePath {
     pub id: String,
     #[serde(rename = "startColumn")]
     pub start_column: u8,
@@ -107,6 +107,7 @@ pub struct Path {
     pub enabled: bool,
 }
 
+#[derive(Clone)]
 pub struct ToggleablePath<'b> {
     enabled: bool,
     path: Vec<&'b Biome>,
@@ -117,7 +118,7 @@ pub(crate) fn get_all_paths() {}
 fn biomes_paths_to_paths<'b>(
     all_biomes: &Vec<Biome>,
     biomes: Vec<ToggleablePath>,
-) -> (Vec<Path>, Vec<Id>) {
+) -> (Vec<RenderablePath>, Vec<Id>) {
     let mut result = vec![];
     let mut reachable_biomes: Vec<Id> = all_biomes.first().iter().map(|b| b.id.clone()).collect();
 
@@ -138,7 +139,7 @@ fn biomes_paths_to_paths<'b>(
             let end_columns = calc_columns(all_biomes, end_biome.row) as u8;
             let length = calc_length(start_biome, end_biome);
 
-            let new_path = Path {
+            let new_path = RenderablePath {
                 id: format!(
                     "{}-{}",
                     start_id.to_string().to_lowercase(),
@@ -153,10 +154,10 @@ fn biomes_paths_to_paths<'b>(
                 enabled,
             };
             // contains check
-            let existing_path: Option<(usize, &Path)> = result
+            let existing_path: Option<(usize, &RenderablePath)> = result
                 .iter()
                 .enumerate()
-                .find(|(_, path): &(usize, &Path)| path.id == new_path.id);
+                .find(|(_, path): &(usize, &RenderablePath)| path.id == new_path.id);
             match existing_path {
                 Some((index, path)) => {
                     // if our new path is enabled, make sure the existing one is
@@ -183,52 +184,58 @@ fn biomes_paths_to_paths<'b>(
     (result, reachable_biomes)
 }
 
-fn deduplicate_paths(mut paths: Vec<Path>) -> Vec<Path> {
+fn deduplicate_paths(mut paths: Vec<RenderablePath>) -> Vec<RenderablePath> {
     paths.sort();
     paths.dedup();
     paths
 }
 
 fn apply_blacklist<'b>(
-    paths: &Vec<Vec<&'b Biome>>,
+    paths: &Vec<ToggleablePath<'b>>,
     blacklist: &Vec<Id>,
 ) -> Vec<ToggleablePath<'b>> {
+    // todo change enabled instead of creating new paths
     paths
         .into_iter()
-        .map(|biomes| {
-            for biome in biomes.iter() {
+        .map(|path| {
+            for biome in path.path.iter() {
                 for blacklist_item in blacklist {
                     if &biome.id == blacklist_item {
                         return ToggleablePath {
                             enabled: false,
-                            path: biomes.clone(),
+                            path: path.path.clone(),
                         };
                     }
                 }
             }
             ToggleablePath {
                 enabled: true,
-                path: biomes.clone(),
+                path: path.path.clone(),
             }
         })
         .collect()
 }
 
-pub(crate) fn find_paths<'b>(biomes: &'b Vec<Biome>) -> Result<Vec<Vec<&'b Biome>>, String> {
+pub(crate) fn find_paths<'b>(biomes: &'b Vec<Biome>) -> Result<Vec<ToggleablePath>, String> {
     let start = biomes.first().unwrap();
+    let start = ToggleablePath {
+        enabled: true,
+        path: vec![start],
+    };
     let end = biomes.last().unwrap();
 
-    let paths = find_path_rec(biomes, vec![&start], &end.id);
+    let paths = find_path_rec(biomes, start, &end.id);
 
     Ok(paths)
 }
 
 fn find_path_rec<'b>(
     all_biomes: &'b Vec<Biome>,
-    current_path: Vec<&'b Biome>,
+    current_path: ToggleablePath<'b>,
     end: &Id,
-) -> Vec<Vec<&'b Biome>> {
+) -> Vec<ToggleablePath<'b>> {
     let last_biome_in_path = current_path
+        .path
         .last()
         .expect("There should be an element here");
     if &last_biome_in_path.id == end {
@@ -248,7 +255,7 @@ fn find_path_rec<'b>(
     let mut paths = vec![];
     for next_biome in next_biomes {
         let mut next_path = current_path.clone();
-        next_path.push(next_biome);
+        next_path.path.push(next_biome);
         let mut new_paths = find_path_rec(all_biomes, next_path, end);
         paths.append(&mut new_paths)
     }
@@ -403,7 +410,7 @@ mod tests {
         assert_eq!(
             result,
             vec![
-                Path {
+                RenderablePath {
                     id: "prisonquart-arboretum".to_string(),
                     start_column: 1,
                     start_columns: 1,
@@ -413,7 +420,7 @@ mod tests {
                     length: 1,
                     enabled: false,
                 },
-                Path {
+                RenderablePath {
                     id: "arboretum-prisondepths".to_string(),
                     start_column: 1,
                     start_columns: 3,
@@ -423,7 +430,7 @@ mod tests {
                     length: 1,
                     enabled: false,
                 },
-                Path {
+                RenderablePath {
                     id: "prisondepths-ossuary".to_string(),
                     start_column: 1,
                     start_columns: 2,
@@ -433,7 +440,7 @@ mod tests {
                     length: 1,
                     enabled: false,
                 },
-                Path {
+                RenderablePath {
                     id: "prisonquart-promenade".to_string(),
                     start_column: 1,
                     start_columns: 1,
@@ -443,7 +450,7 @@ mod tests {
                     length: 1,
                     enabled: true,
                 },
-                Path {
+                RenderablePath {
                     id: "promenade-corruptedprison".to_string(),
                     start_column: 2,
                     start_columns: 3,
@@ -453,7 +460,7 @@ mod tests {
                     length: 1,
                     enabled: true,
                 },
-                Path {
+                RenderablePath {
                     id: "corruptedprison-ossuary".to_string(),
                     start_column: 2,
                     start_columns: 2,
@@ -463,7 +470,7 @@ mod tests {
                     length: 1,
                     enabled: true,
                 },
-                Path {
+                RenderablePath {
                     id: "promenade-ossuary".to_string(),
                     start_column: 2,
                     start_columns: 3,
@@ -499,7 +506,7 @@ mod tests {
         }
     }
 
-    fn prettyify_paths(paths: &Vec<Path>) -> Vec<String> {
+    fn prettyify_paths(paths: &Vec<RenderablePath>) -> Vec<String> {
         paths.iter().map(|path| path.id.clone()).collect()
     }
 

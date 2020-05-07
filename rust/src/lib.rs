@@ -1,13 +1,13 @@
 #[macro_use]
 extern crate lazy_static;
 
-use crate::core::{Biome, Id};
+use crate::json::models::*;
 use js_sys::{Array, Map};
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
-mod biomes;
 mod core;
+mod json;
 mod lazies;
 mod path;
 
@@ -20,7 +20,7 @@ mod path;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen(js_name = getBiomes)]
-pub fn get_biomes(blacklist: Array, boss_cells:JsValue) -> Result<Map, JsValue> {
+pub fn get_biomes(blacklist: Array, boss_cells: JsValue) -> Result<Map, JsValue> {
     #[cfg(feature = "console_error_panic_hook")]
     console_error_panic_hook::set_once();
 
@@ -32,11 +32,11 @@ pub fn get_biomes(blacklist: Array, boss_cells:JsValue) -> Result<Map, JsValue> 
         })
         .collect();
 
-    let boss_cells:u8 = boss_cells.as_f64().expect("can't unwrap boss cells") as u8;
+    let boss_cells: u8 = boss_cells.as_f64().expect("can't unwrap boss cells") as u8;
     console::log_1(&JsValue::from(format!("lib:: boss cells: {}", boss_cells)));
 
-    let (biomes, paths) =
-        core::get_biomes_and_paths(blacklist, boss_cells, None).map_err(|msg| JsValue::from(msg))?;
+    let (biomes, paths) = core::get_biomes_and_paths(blacklist, boss_cells, None)
+        .map_err(|msg| JsValue::from(msg))?;
 
     let map = Map::new();
     for (i, tier) in biomes.iter().enumerate() {

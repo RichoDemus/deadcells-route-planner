@@ -1,5 +1,4 @@
-use crate::core::Exit;
-use crate::core::{Biome, Id};
+use crate::json::models::*;
 use crate::lazies;
 use serde::Serialize;
 
@@ -364,7 +363,7 @@ struct SimplePath {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::ScrollFragments;
+    use crate::json::models::ScrollFragments;
 
     #[test]
     fn calculate_all_paths() -> Result<(), String> {

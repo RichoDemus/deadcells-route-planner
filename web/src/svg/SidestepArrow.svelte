@@ -4,6 +4,7 @@
     // export let id;
     export let startColumn;
     export let startColumns;
+    export let startColumnOffset = 0;
     export let endColumn;
     export let endColumns;
     export let endColumnOffset = 0;
@@ -11,7 +12,7 @@
     export let length = 1;
     export let enabled;
 
-    let x1 = calcXForArrow(parseInt(startColumn), parseInt(startColumns));
+    let x1 = calcXForArrow(parseInt(startColumn), parseInt(startColumns) + parseInt(startColumnOffset));
     let x2 = calcXForArrow(parseInt(endColumn), parseInt(endColumns)) + parseInt(endColumnOffset);
 
     let y1 = parseInt(row) * 200 - 100;

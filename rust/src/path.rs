@@ -98,10 +98,14 @@ pub struct RenderablePath {
     pub id: String,
     #[serde(rename = "startColumn")]
     pub start_column: u8,
+    #[serde(rename = "startColumnOffset")]
+    pub start_column_offset: u8,
     #[serde(rename = "startColumns")]
     pub start_columns: u8,
     #[serde(rename = "endColumn")]
     pub end_column: u8,
+    #[serde(rename = "endtColumnOffset")]
+    pub end_column_offset: u8,
     #[serde(rename = "endColumns")]
     pub end_columns: u8,
     pub row: u8,
@@ -160,8 +164,10 @@ fn biomes_paths_to_paths<'b>(
                     end_biome.id.to_string().to_lowercase()
                 ),
                 start_column,
+                start_column_offset: 0,
                 start_columns,
                 end_column,
+                end_column_offset: 0,
                 end_columns,
                 row,
                 length,
@@ -490,8 +496,10 @@ mod tests {
                 RenderablePath {
                     id: "prisonquart-arboretum".to_string(),
                     start_column: 1,
+                    start_column_offset: 0,
                     start_columns: 1,
                     end_column: 1,
+                    end_column_offset: 0,
                     end_columns: 3,
                     row: 1,
                     length: 1,
@@ -500,8 +508,10 @@ mod tests {
                 RenderablePath {
                     id: "arboretum-prisondepths".to_string(),
                     start_column: 1,
+                    start_column_offset: 0,
                     start_columns: 3,
                     end_column: 1,
+                    end_column_offset: 0,
                     end_columns: 2,
                     row: 2,
                     length: 1,
@@ -510,8 +520,10 @@ mod tests {
                 RenderablePath {
                     id: "prisondepths-ossuary".to_string(),
                     start_column: 1,
+                    start_column_offset: 0,
                     start_columns: 2,
                     end_column: 1,
+                    end_column_offset: 0,
                     end_columns: 1,
                     row: 3,
                     length: 1,
@@ -520,8 +532,10 @@ mod tests {
                 RenderablePath {
                     id: "prisonquart-promenade".to_string(),
                     start_column: 1,
+                    start_column_offset: 0,
                     start_columns: 1,
                     end_column: 2,
+                    end_column_offset: 0,
                     end_columns: 3,
                     row: 1,
                     length: 1,
@@ -530,8 +544,10 @@ mod tests {
                 RenderablePath {
                     id: "promenade-corruptedprison".to_string(),
                     start_column: 2,
+                    start_column_offset: 0,
                     start_columns: 3,
                     end_column: 2,
+                    end_column_offset: 0,
                     end_columns: 2,
                     row: 2,
                     length: 1,
@@ -540,8 +556,10 @@ mod tests {
                 RenderablePath {
                     id: "corruptedprison-ossuary".to_string(),
                     start_column: 2,
+                    start_column_offset: 0,
                     start_columns: 2,
                     end_column: 1,
+                    end_column_offset: 0,
                     end_columns: 1,
                     row: 3,
                     length: 1,
@@ -550,8 +568,10 @@ mod tests {
                 RenderablePath {
                     id: "promenade-ossuary".to_string(),
                     start_column: 2,
+                    start_column_offset: 0,
                     start_columns: 3,
                     end_column: 1,
+                    end_column_offset: 0,
                     end_columns: 1,
                     row: 2,
                     length: 2,
@@ -560,8 +580,10 @@ mod tests {
                 RenderablePath {
                     id: "prisonquart-ossuary".to_string(),
                     start_column: 1,
+                    start_column_offset: 0,
                     start_columns: 1,
                     end_column: 1,
+                    end_column_offset: 0,
                     end_columns: 1,
                     row: 1,
                     length: 3,

@@ -233,8 +233,10 @@ fn calculate_paths_old(biomes: &Vec<Biome>, blacklist: &Vec<Id>) -> Vec<Renderab
                     exit.destination.to_string().to_lowercase()
                 ),
                 start_column,
+                start_column_offset: 0,
                 start_columns,
                 end_column,
+                end_column_offset: 0,
                 end_columns,
                 row,
                 length,

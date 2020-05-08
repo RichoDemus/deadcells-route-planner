@@ -12,8 +12,8 @@
     export let length = 1;
     export let enabled;
 
-    let x1 = calcXForArrow(parseInt(startColumn), parseInt(startColumns) + parseInt(startColumnOffset));
-    let x2 = calcXForArrow(parseInt(endColumn), parseInt(endColumns)) + parseInt(endColumnOffset);
+    let x1 = calcXForArrow(parseInt(startColumn), parseInt(startColumns))  + parseInt(startColumnOffset);
+    let x2 = calcXForArrow(parseInt(endColumn), parseInt(endColumns))  + parseInt(endColumnOffset);
 
     let y1 = parseInt(row) * 200 - 100;
     let middleLineY =  y1 + 40;

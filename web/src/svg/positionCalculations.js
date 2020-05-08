@@ -6,11 +6,11 @@ export const calcXForArrow = (column, columns) => {
     } else if( columns === 2 && column === 2) {
         return 650;
     } else if (columns === 3 && column === 1) {
-        return 80;
+        return 130;
     } else if (columns === 3 && column === 2) {
         return 480;
     } else if (columns === 3 && column === 3) {
-        return 760;
+        return 830;
     } else if (columns === 4 && column === 1) {
         return 100;
     } else if (columns === 4 && column === 2) {

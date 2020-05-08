@@ -25,24 +25,53 @@
     // enabled = true;
     // console.log("arrow:",id, "start-column",startColumn, "/",startColumns, "end-column",endColumn, "/",endColumns,"row", row, "length",length)
    //  console.log("enabled:", enabled, "type", typeof enabled);
+
+    // todo pick and remove color to avoid duplicates
+    const array = ["powderblue",
+        "lightblue",
+        "lightskyblue",
+        "skyblue",
+        "deepskyblue",
+        "lightsteelblue",
+        "dodgerblue",
+        "cornflowerblue",
+        "steelblue",
+        "royalblue",
+        "blue",
+        "mediumblue",
+        "darkblue",
+        "navy",
+        "midnightblue",
+        "mediumslateblue",
+        "slateblue",
+        "darkslateblue"];
+    // let color = "black";
+    const color = array[Math.floor(Math.random() * array.length)];
 </script>
 
 <style>
     line {
         stroke-width: 10;
         stroke-linecap: butt;
-        stroke: black;
+        stroke: var(--theme-color);
         /*opacity: 0.3;*/
+        /*fill: none;*/
+        /*stroke: #646464;*/
+        /*stroke-width: 1px;*/
+        /*stroke-dasharray: 2,2;*/
+        /*stroke-linejoin: round;*/
+        /*outline: 3px solid green;*/
     }
     path {
-        stroke: black;
+        stroke: var(--theme-color);
+        fill: var(--theme-color);
     }
     .disabled {
         opacity: 0.1;
     }
 </style>
 
-<line class:disabled="{ !enabled }" x1="{x1}" y1="{y1}" x2="{x1}" y2="{middleLineY + 5}"/>
-<line class:disabled="{ !enabled }" x1="{x1}" y1="{middleLineY}" x2="{x2}" y2="{middleLineY}"/>
-<line class:disabled="{ !enabled }" x1="{x2}" y1="{middleLineY - 5}" x2="{x2}" y2="{y2}"/>
-<path class:disabled="{ !enabled }" d="M {head_x},{head_y} h 30 l -15 10 z"/>
+<line class:disabled="{ !enabled }" style="--theme-color: {color}" x1="{x1}" y1="{y1}" x2="{x1}" y2="{middleLineY + 5}"/>
+<line class:disabled="{ !enabled }" style="--theme-color: {color}" x1="{x1}" y1="{middleLineY}" x2="{x2}" y2="{middleLineY}"/>
+<line class:disabled="{ !enabled }" style="--theme-color: {color}" x1="{x2}" y1="{middleLineY - 5}" x2="{x2}" y2="{y2}"/>
+<path class:disabled="{ !enabled }" style="--theme-color: {color}" d="M {head_x},{head_y} h 30 l -15 10 z"/>
